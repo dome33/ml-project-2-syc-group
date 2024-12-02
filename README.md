@@ -47,3 +47,21 @@ If the job has been successfully uploaded you should be getting a job id for it.
 ```
 $ scp path/to/file USERNAME@izar.hpc.epfl.ch:path/to/file
 ```
+
+
+
+
+## Project structure 
+
+```
+├── data/                     # contains datasets
+│   ├── raw/                  # unprocessed datasets
+├── src/                      # Source code 
+│   ├── data/                 # Scripts for loading and preprocessing datasets
+│   ├── models/               
+│   ├── train/                # Training and evaluation scripts
+├── .env                      
+├── README.md               
+
+
+```
