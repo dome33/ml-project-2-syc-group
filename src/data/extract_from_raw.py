@@ -18,7 +18,7 @@ It contains one line for each of the files in the following format: `<file name>
 
 """
 
-def process_online_dataset(txt_file_path, source_folder, destination_folder):
+def process_online_dataset(txt_file_path, source_folder, destination_folder, output_txt_path): 
     """
     Processes a text file where each line has the format `<file name> <corresponding move>`,
     copies the file from the source folder to the destination folder, and renames it by
@@ -28,25 +28,30 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder):
         txt_file_path (str): Path to the text file with file names and moves.
         source_folder (str): Path to the source folder containing the files.
         destination_folder (str): Path to the destination folder to copy the files to.
-
+        output_txt_path (str): Path to the .txt file to be created. 
     Returns:
         None
     """
     # Ensure the destination folder exists
     os.makedirs(destination_folder, exist_ok=True)
 
-    with open(txt_file_path, 'r') as file:
+    with open(txt_file_path, 'r') as file , open(output_txt_path, 'w') as output_file: 
+        output_file.write("id, prediction\n") 
+        
         for line in file:
             # Extract the file name from the line
             parts = line.strip().split(maxsplit=1)
             if len(parts) < 1:
                 print(f"Skipped empty or malformed line: {line}")
                 continue
+            # Write the file name and move to the output text file 
+            img_id = parts[0].split(".")[0] 
+            output_file.write(f"{img_id}, {parts[1]}\n")
+            
             original_file_name = parts[0]
-
             # Construct source and destination paths
             source_path = os.path.join(source_folder, original_file_name)
-            new_file_name = f"onlinedata_{original_file_name}"
+            new_file_name = f"{original_file_name}"
             destination_path = os.path.join(destination_folder, new_file_name)
 
             if os.path.exists(source_path):
@@ -55,6 +60,7 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder):
                 print(f"Copied and renamed: {original_file_name} -> {new_file_name}")
             else:
                 print(f"File not found: {source_path}")
+            
             
             
 
@@ -81,6 +87,7 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
 
     # Open the output text file for writing
     with open(output_txt_path, 'w') as output_file:
+        output_file.write("id, prediction\n") 
         for _, row in valid_moves.iterrows():
             # Determine the original file name using the 'id' column
             file_id = int(row['id'])
@@ -94,13 +101,13 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
                 original_filename = jpe_filename
             else:
                 print(f"File not found for ID {file_id}: neither {png_filename} nor {jpe_filename}")
-                continue
+                raise FileNotFoundError(f"File not found for ID {file_id}: neither {png_filename} nor {jpe_filename}") 
             
             # Full path of the original file
             original_filepath = os.path.join(source_folder, original_filename)
             
             # Create the new file name and its path
-            new_filename = f"profdata_{original_filename}"
+            new_filename = f"{png_filename}"
             new_filepath = os.path.join(destination_folder, new_filename)
             
             # Copy the file to the destination with the new name
@@ -108,9 +115,9 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
             
             # Write the new file name and the corresponding move to the .txt file
             corresponding_move = row['prediction']
-            output_file.write(f"{new_filename} {corresponding_move}\n")
+            output_file.write(f"{file_id}, {corresponding_move}\n")
             
-            print(f"Processed: {original_filename} -> {new_filename}")
+            print(f"Processed: {file_id} -> {new_filename}")
             
 
             
@@ -119,8 +126,8 @@ if __name__ == "__main__":
     txt_file_path = "data/raw/hcs_dataset/extracted move boxes/train_data.txt" 
     source_folder = "data/raw/hcs_dataset/extracted move boxes"
     destination_folder = "data/online_dataset"
-
-    process_online_dataset(txt_file_path, source_folder, destination_folder)
+    output_txt_path = "data/online_dataset/labels.txt" 
+    process_online_dataset(txt_file_path, source_folder, destination_folder, output_txt_path) 
 
     csv_path = "data/raw/chess_reader_data/prediciton.csv"
     source_folder = "data/raw/chess_reader_data/images" 
