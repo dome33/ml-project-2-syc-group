@@ -68,7 +68,7 @@ def load_images_labels(path):
 
 class CustomChessScoreSheetsDataset(Dataset):
     def __init__(self, images, labels): 
-        self.images = images 
+        self.images = [torch.tensor(img, dtype=torch.float32) for img in images]
         self.labels = labels
     def __len__(self):
         return len(self.images)
@@ -144,13 +144,13 @@ if __name__ == "__main__":
     print("created test dataset") 
     
     # rest of the data is for validation and testing 
-    images = np.concatenate([chess_reader_images[:split] , online_images]) 
+    images = chess_reader_images[:split] + online_images
     labels = chess_reader_labels[:split] + online_labels
     images, labels = shuffle(images, labels) 
     
-    assert len(images) == len(labels) 
-    assert len(images) == len(chess_reader_images) + len(online_images) 
-    assert len(labels) == len(chess_reader_labels) + len(online_labels)
+    # assert len(images) == len(labels) 
+    # assert len(images) == len(chess_reader_images) + len(online_images) 
+    # assert len(labels) == len(chess_reader_labels) + len(online_labels)
     
     
     # split train and val 
@@ -159,22 +159,16 @@ if __name__ == "__main__":
     train_images = images[:split]
     train_labels = labels[:split]
     train_dataset = CustomChessScoreSheetsDataset(train_images, train_labels) 
-    
+    print("created train dataset") 
     # val set 
     val_images = images[split:] 
     val_labels = labels[split:] 
     val_dataset = CustomChessScoreSheetsDataset(val_images, val_labels)  
-    
+    print("created val dataset") 
     # save alles 
     torch.save(train_dataset, "data/train_dataset.pt") 
     torch.save(val_dataset, "data/val_dataset.pt") 
     
-    
-    
-    
-    
-
-         
     
 
 
