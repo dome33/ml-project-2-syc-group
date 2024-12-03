@@ -1,4 +1,5 @@
 
+import numpy as np 
 
 class Tokenizer(): 
     
@@ -28,4 +29,22 @@ class Tokenizer():
         return len(self.chars) + 1 
     
     
+def greedy_decode(log_probs, blank_index, tokenizer):
+    """
+    Decode using greedy method.
+    :param log_probs: Log probabilities from the model (T x V)
+    :param blank_index: Index of the blank token
+    :param tokenizer: Tokenizer object 
+    
+    :return: Decoded sequence as a string
+    """
+    max_indices = np.argmax(log_probs, axis=1)  # Argmax over vocabulary
+    
+    sequence = [
+        tokenizer.idx_to_chars[idx] 
+        for i, idx in enumerate(max_indices) 
+        if idx != blank_index and (i == 0 or idx != max_indices[i-1])
+    ]
+    
+    return "".join(sequence)
     
