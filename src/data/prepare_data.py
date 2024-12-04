@@ -8,6 +8,10 @@ from tqdm import tqdm
 import torch
 from src.data.dataset import CustomChessScoreSheetsDataset
 
+DEFAULT_HEIGHT = 90 
+DEFAULT_WIDTH = 400 
+
+
 # Paths to datasets
 chess_reader_data_path = "data/chess_reader_dataset"
 online_data_path = "data/online_dataset"
@@ -26,17 +30,35 @@ def rescale_img(img, target_height, target_width):
     # Compute new dimensions
     new_width = int(orig_width * scale)
     new_height = int(orig_height * scale)
-
-    # Resize image while preserving aspect ratio
-    resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
-
-    # Center crop to the target size
-    start_x = (new_width - target_width) // 2
-    start_y = (new_height - target_height) // 2
-    cropped_img = resized_img[start_y:start_y + target_height, start_x:start_x + target_width]
-
-    return cropped_img
-
+    
+    if img.shape[0] > target_height: 
+        scale = target_height / img.shape[0]
+        new_width = int(img.shape[1] * scale)
+        new_height = int(img.shape[0] * scale)
+        img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    if img.shape[1] > target_width:
+        scale = target_width / img.shape[1]
+        new_width = int(img.shape[1] * scale)
+        new_height = int(img.shape[0] * scale)
+        img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    
+    resized_img = img 
+    
+    median = np.median(resized_img) 
+    pad_top = (target_height - resized_img.shape[0]) // 2 
+    pad_left = (target_width - resized_img.shape[1]) // 2 
+    
+    resized_img = cv2.copyMakeBorder(
+        img, 
+        top = pad_top, 
+        bottom= target_height - resized_img.shape[0] - pad_top, 
+        left = pad_left, 
+        right = target_width - resized_img.shape[1] - pad_left, 
+        borderType= cv2.BORDER_CONSTANT, 
+        value=median
+    )
+    
+    return resized_img
 # Function to resize images
 def resize_images(images, target_height, target_width):
     return [
@@ -72,20 +94,24 @@ def shuffle(a, b):
     indices = np.random.permutation(len(a))
     return [a[i] for i in indices], [b[i] for i in indices]
 
+def crop_images(images, offset_height, offset_width): 
+    return [
+        img[offset_height:, offset_width:] 
+        for img in images 
+    ]
+     
 if __name__ == "__main__":
     chess_reader_images, chess_reader_labels = load_images_labels(chess_reader_data_path)
     online_images, online_labels = load_images_labels(online_data_path)
-
+    
+    
+    # crop online images
+    online_images = crop_images(online_images, 0, 200) 
+    
     print("Loaded data")
-    # Resize images
-    max_width = max([img.shape[1] for img in chess_reader_images + online_images])
-    max_height = max([img.shape[0] for img in chess_reader_images + online_images])
-
-    print("Max width:", max_width)
-    print("Max height:", max_height)
-
-    chess_reader_images = resize_images(chess_reader_images, max_height, max_width)
-    online_images = resize_images(online_images, max_height, max_width)
+    # resize images 
+    chess_reader_images = resize_images(chess_reader_images, DEFAULT_HEIGHT, DEFAULT_WIDTH) 
+    online_images = resize_images(online_images, DEFAULT_HEIGHT, DEFAULT_WIDTH) 
 
     print("Chess reader dataset")
     print("#images:", len(chess_reader_images))
