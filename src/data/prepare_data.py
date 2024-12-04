@@ -106,7 +106,7 @@ if __name__ == "__main__":
     
     
     # crop online images
-    online_images = crop_images(online_images, 0, 200) 
+    # online_images = crop_images(online_images, 0, 200) 
     
     print("Loaded data")
     # resize images 
