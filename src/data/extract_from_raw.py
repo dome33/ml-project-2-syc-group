@@ -36,7 +36,7 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
     os.makedirs(destination_folder, exist_ok=True)
 
     with open(txt_file_path, 'r') as file , open(output_txt_path, 'w') as output_file: 
-        output_file.write("id, prediction\n") 
+        output_file.write("id,prediction\n") 
         
         for line in file:
             # Extract the file name from the line
@@ -45,8 +45,8 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
                 print(f"Skipped empty or malformed line: {line}")
                 continue
             # Write the file name and move to the output text file 
-            img_id = parts[0].split(".")[0] 
-            output_file.write(f"{img_id}, {parts[1]}\n")
+            # img_id = parts[0].split(".")[0] 
+            output_file.write(f"{parts[0]},{parts[1]}\n")
             
             original_file_name = parts[0]
             # Construct source and destination paths
@@ -87,7 +87,7 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
 
     # Open the output text file for writing
     with open(output_txt_path, 'w') as output_file:
-        output_file.write("id, prediction\n") 
+        output_file.write("id,prediction\n") 
         for _, row in valid_moves.iterrows():
             # Determine the original file name using the 'id' column
             file_id = int(row['id'])
@@ -115,7 +115,7 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
             
             # Write the new file name and the corresponding move to the .txt file
             corresponding_move = row['prediction']
-            output_file.write(f"{file_id}, {corresponding_move}\n")
+            output_file.write(f"{png_filename},{corresponding_move}\n")
             
             print(f"Processed: {file_id} -> {new_filename}")
             
