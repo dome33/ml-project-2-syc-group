@@ -1,5 +1,7 @@
 
 import numpy as np 
+from jiwer import cer 
+from torch.utils.data import DataLoader
 
 class Tokenizer(): 
     
@@ -25,11 +27,12 @@ class Tokenizer():
         """
         return "".join([self.idx_to_chars[i] for i in encoded]) 
 
+
     def n_chars(self) -> int: 
         return len(self.chars) + 1 
     
-    
-def modelopt_to_seq_tokens(log_probs, blank_index):
+
+def logprobs_to_seq_tokens(log_probs, blank_index):
     """
     Decode a sequence of tokens from the model output. 
     :param log_probs: Log probabilities from the model (T x V)
@@ -47,3 +50,22 @@ def modelopt_to_seq_tokens(log_probs, blank_index):
     ]
     
     
+def compute_cer(model,dataset,tokenizer,device): 
+    model.eval()
+    model = model.to("cpu")
+    avg_cer = 0 
+    
+    for i,(images, labels ) in enumerate(dataset):  
+        print(i) 
+        images = images.unsqueeze(0).unsqueeze(0)
+        log_probs = model(images).detach().cpu().numpy() 
+    
+        decoded = logprobs_to_seq_tokens(log_probs[0], tokenizer.blank) 
+        decoded = tokenizer.decode(decoded)
+        
+        cer_score = cer(labels, decoded)
+        avg_cer += cer_score 
+    
+    model = model.to(device) 
+    model.train()
+    return avg_cer / len(dataset) 
