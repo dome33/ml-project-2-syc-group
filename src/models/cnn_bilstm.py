@@ -68,7 +68,7 @@ class CNNBILSTM(nn.Module):
     def __init__(self, num_chars: int, activation: str="leaky_relu", dropout: float=0.2):
         super(CNNBILSTM, self).__init__()
 
-        self.rb1 = ResidualBlock(1, 16, skip_conv = True, stride=1, activation=activation, dropout=dropout)
+        self.rb1 = ResidualBlock(3, 16, skip_conv = True, stride=1, activation=activation, dropout=dropout)
         self.rb2 = ResidualBlock(16, 16, skip_conv = True, stride=2, activation=activation, dropout=dropout)
         self.rb3 = ResidualBlock(16, 16, skip_conv = False, stride=1, activation=activation, dropout=dropout)
 
@@ -88,8 +88,14 @@ class CNNBILSTM(nn.Module):
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:
         # normalize images between 0 and 1
+        print(images.shape)
+        images_flaot = images / 255.0
+
+        # NOTE images are in format # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
+        # so we need to transpose. 
         
-        images_flaot = images 
+        # transpose image to channel first
+        images_flaot = images_flaot.permute(0, 3, 1, 2)
         
         # apply convolutions
         x = self.rb1(images_flaot)

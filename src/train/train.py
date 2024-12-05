@@ -1,86 +1,117 @@
+import os
+from urllib.request import urlopen
+import torch.optim as optim
+from torchsummaryX import summary
+
+from mltu.torch.model import Model
+from mltu.torch.losses import CTCLoss
+from mltu.torch.dataProvider import DataProvider
+from mltu.torch.metrics import CERMetric, WERMetric
+from mltu.torch.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, Model2onnx, ReduceLROnPlateau
+
+from mltu.preprocessors import ImageReader
+from mltu.transformers import ImageResizer, LabelIndexer, LabelPadding, ImageShowCV2
+from mltu.augmentors import RandomBrightness, RandomRotate, RandomErodeDilate, RandomSharpen
+from mltu.annotations.images import CVImage
+
 from src.models.cnn_bilstm import CNNBILSTM
+from argparse import ArgumentParser 
 import yaml 
-import argparse
-import torch 
+import numpy as np 
 from types import SimpleNamespace
-from src.data.dataset import custom_collate_fn 
-from torch.utils.data import DataLoader 
-from src.utils import Tokenizer, compute_cer 
-from jiwer import cer 
-from tqdm import tqdm 
+from src.utils import split_data_provider 
 
-# PARSE ARGS 
-parser = argparse.ArgumentParser() 
-parser.add_argument("--config", type=str, required=True)
-args = parser.parse_args()
+# LOAD CONFIGS 
+parser = ArgumentParser() 
+parser.add_argument("--config", type=str, required=True) 
+args = parser.parse_args() 
+config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
+configs = SimpleNamespace(**config) 
 
 
-# LOAD CONFIG 
-with open(args.config, "r") as file: 
-    conf = yaml.load(file, Loader=yaml.FullLoader) 
-    conf = SimpleNamespace(**conf) 
-    
-# LOAD DATA 
-train_set = torch.load("data/train_dataset.pt") 
-tokenizer = Tokenizer(train_set.labels) 
-train_set.labels = [tokenizer.encode(label) for label in train_set.labels] # TODO do better 
-train_loader = DataLoader(train_set, batch_size=conf.batch_size, shuffle=True, collate_fn=custom_collate_fn)
+# LOAD THE DATASET. 
+dataset = np.load("data/trainset.npy") 
+dataset = [(name, label) for name, label in dataset] 
+
+# get the vocabulary 
+vocab = [c for _,label in dataset for c in label] 
+vocab = list(set(vocab)) 
+vocab.sort() 
+max_len = max([len(label) for _,label in dataset])
 
 
-# validation 
-val_set = torch.load("data/val_dataset.pt") 
+# Save vocab and maximum text length to configs
+configs.vocab = "".join(sorted(vocab))
+configs.max_text_length = max_len
 
 
-# INITIALIZE STUFF 
-model = CNNBILSTM(
-    num_chars= tokenizer.n_chars(),
-    activation="leaky_relu", 
-    dropout=0.3
-).to(conf.device) 
+# Create a data provider for the dataset
+data_provider = DataProvider(
+    dataset=dataset,
+    skip_validation=True,
+    batch_size=configs.batch_size,
+    data_preprocessors=[ImageReader(CVImage)],
+    transformers=[
+        # ImageShowCV2(), # uncomment to show images when iterating over the data provider
+        ImageResizer(configs.width, configs.height, keep_aspect_ratio=False),
+        LabelIndexer(configs.vocab),
+        LabelPadding(max_word_length=configs.max_text_length, padding_value=len(configs.vocab))
+        ],
+    use_cache=True,
+)
 
 
-optimizer = torch.optim.Adam(model.parameters(), lr=conf.lr) 
-criterion = torch.nn.CTCLoss(blank=tokenizer.blank)  
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.9, patience=10, mode="min", min_lr=1e-6)
+# Split the dataset into training and validation sets
+train_dataProvider, test_dataProvider = split_data_provider(data_provider,split=0.9)
 
-print(f"trainset shape: {train_set.images.shape}") 
-print(f"valset shape: {val_set.images.shape}")
-for i in range(conf.max_epochs): 
-    
-    mean_loss = 0 
-    
-    for image, label, target_lengths in tqdm(
-        train_loader, 
-        desc=f"Epoch {i}", 
-        total=len(train_loader)
-        ): 
-        # move to device
-        image = image.to(conf.device)   
-        label = label.to(conf.device)
-        target_lengths = target_lengths.to(conf.device).long()
-        image = image.unsqueeze(1) # (b, 1, h, w) 
 
-        # print(image.shape) 
-    
-        # start training 
-        optimizer.zero_grad()
-        log_probs = model(image)
-        log_probs = log_probs.permute(1, 0, 2)  # (sequence_length, batch_size, num_classes)
-        
-        
-        input_lengths = torch.full((image.shape[0],), log_probs.shape[0], dtype=torch.long)    
-    
-        loss = criterion(log_probs, label, input_lengths, target_lengths)
-        loss.backward()
-        optimizer.step()
-        
-        mean_loss += loss.item()
-    print(f"Epoch {i} loss: {mean_loss/len(train_loader)}") 
-        
-    if i % 10 == 0: 
-        print(f"Validation CER: {compute_cer(model, val_set, tokenizer, conf.device)}") 
-        
-        
-        
-    
-    
+
+# Augment training data with random brightness, rotation and erode/dilate
+train_dataProvider.augmentors = [
+    RandomBrightness(), 
+    RandomErodeDilate(),
+    RandomSharpen(),
+    RandomRotate(angle=10), 
+]
+
+
+# Create our model 
+# NOTE to test another model architecture. add a filed "model" to the configs file 
+# and add if-else logic here to create the model specified in the configs file. 
+network = CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3)
+loss = CTCLoss(blank=len(configs.vocab))
+optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
+
+
+# put on cuda device if available
+network = network.to(configs.device)
+
+# create callbacks
+# used to track important metrics. 
+earlyStopping = EarlyStopping(monitor="val_CER", patience=20, mode="min", verbose=1)
+modelCheckpoint = ModelCheckpoint(configs.model_path + "/model.pt", monitor="val_CER", mode="min", save_best_only=True, verbose=1)
+tb_callback = TensorBoard(configs.model_path + "/logs")
+reduce_lr = ReduceLROnPlateau(monitor="val_CER", factor=0.9, patience=10, verbose=1, mode="min", min_lr=1e-6)
+model2onnx = Model2onnx(
+    saved_model_path=configs.model_path + "/model.pt",
+    input_shape=(1, configs.height, configs.width, 3), 
+    verbose=1,
+    metadata={"vocab": configs.vocab}
+)
+
+
+# create model object that will handle training and testing of the network
+# NOTE : FOR REASONS I DONT KNOW (YET), DATA IS PASSED TO THE MODEL WITH SHAPE 
+# (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
+# adapt your model accordingly (look into NOTE of src/models/cnn_bilstm.py) 
+model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMetric(configs.vocab)])
+model.fit(
+    train_dataProvider, 
+    test_dataProvider, 
+    epochs=1000, 
+    callbacks=[earlyStopping, modelCheckpoint, tb_callback, reduce_lr, model2onnx]
+    )
+
+# Save training and validation datasets as csv files
+train_dataProvider.to_csv(os.path.join(configs.model_path, "train.csv"))
+test_dataProvider.to_csv(os.path.join(configs.model_path, "val.csv"))
