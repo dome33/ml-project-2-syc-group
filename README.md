@@ -84,3 +84,9 @@ To train a model, run the following command:
 python src/train/train.py --config configs/cnn_bilstm_mltu_default.yaml
 ```
 
+# Dependencies 
+Install mltu with 
+```bash
+pip install mltu
+``` 
+
