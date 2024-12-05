@@ -88,7 +88,7 @@ class CNNBILSTM(nn.Module):
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:
         # normalize images between 0 and 1
-        print(images.shape)
+        
         images_flaot = images / 255.0
 
         # NOTE images are in format # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
