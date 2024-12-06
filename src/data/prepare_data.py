@@ -5,7 +5,7 @@ DEFAULT_HEIGHT = 90
 DEFAULT_WIDTH = 400 
 
 CHESS_READER_SPLIT = 0.5 
-
+ONLINE_SPLIT = 0.9
 
 
 
@@ -34,11 +34,20 @@ if __name__ == "__main__":
     random.shuffle(chess_reader_dataset) 
     random.shuffle(online_dataset)
     
+    # TEST 
     split = int(len(chess_reader_dataset) * CHESS_READER_SPLIT) 
     np.save("data/testset.npy", chess_reader_dataset[:split]) 
     
-    dataset = chess_reader_dataset[split:] + online_dataset 
-    np.save("data/trainset.npy", dataset) 
+    # VALIDATION 
+    valdataset = chess_reader_dataset[split:]
+    split = int(len(online_dataset) * ONLINE_SPLIT)
+    valdataset += online_dataset[split:] 
+    np.save("data/valset.npy", valdataset) 
+    
+    # TRAIN 
+    train_dataset = online_dataset[:split]
+    random.shuffle(train_dataset) 
+    np.save("data/trainset.npy", train_dataset) 
     
     
     
