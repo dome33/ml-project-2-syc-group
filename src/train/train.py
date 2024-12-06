@@ -30,14 +30,16 @@ configs = SimpleNamespace(**config)
 
 
 # LOAD THE DATASET. 
-dataset = np.load("data/trainset.npy") 
-dataset = [(name, label) for name, label in dataset] 
+train_dataset = np.load("data/trainset.npy") 
+train_dataset = [(name, label) for name, label in train_dataset] 
+val_dataset = np.load("data/valset.npy") 
+val_dataset = [(name, label) for name, label in val_dataset]
 
 # get the vocabulary 
-vocab = [c for _,label in dataset for c in label] 
+vocab = [c for _,label in train_dataset for c in label] 
 vocab = list(set(vocab)) 
 vocab.sort() 
-max_len = max([len(label) for _,label in dataset])
+max_len = max([len(label) for _,label in train_dataset])
 
 
 # Save vocab and maximum text length to configs
@@ -46,8 +48,8 @@ configs.max_text_length = max_len
 
 
 # Create a data provider for the dataset
-data_provider = DataProvider(
-    dataset=dataset,
+train_dataProvider = DataProvider(
+    dataset=train_dataset,
     skip_validation=True,
     batch_size=configs.batch_size,
     data_preprocessors=[ImageReader(CVImage)],
@@ -60,10 +62,14 @@ data_provider = DataProvider(
     use_cache=True,
 )
 
-
-# Split the dataset into training and validation sets
-train_dataProvider, test_dataProvider = split_data_provider(data_provider,split=0.9)
-
+val_dataProvider = DataProvider(
+    dataset = val_dataset,
+    skip_validation=train_dataProvider._skip_validation,
+    batch_size=train_dataProvider._batch_size,
+    data_preprocessors=train_dataProvider._data_preprocessors,
+    transformers=train_dataProvider._transformers,
+    use_cache=train_dataProvider._use_cache,
+)
 
 
 # Augment training data with random brightness, rotation and erode/dilate
@@ -107,11 +113,11 @@ model2onnx = Model2onnx(
 model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMetric(configs.vocab)])
 model.fit(
     train_dataProvider, 
-    test_dataProvider, 
+    val_dataProvider, 
     epochs=1000, 
     callbacks=[earlyStopping, modelCheckpoint, tb_callback, reduce_lr, model2onnx]
     )
 
 # Save training and validation datasets as csv files
 train_dataProvider.to_csv(os.path.join(configs.model_path, "train.csv"))
-test_dataProvider.to_csv(os.path.join(configs.model_path, "val.csv"))
+val_dataProvider.to_csv(os.path.join(configs.model_path, "val.csv"))
