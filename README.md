@@ -62,6 +62,31 @@ $ scp path/to/file USERNAME@izar.hpc.epfl.ch:path/to/file
 │   ├── train/                # Training and evaluation scripts
 ├── .env                      
 ├── README.md               
-
-
 ```
+
+## Data
+* The content of `2023 11 Export ChessReader Data` found in the drive provided by the professor should be placed in the `data/raw/chess_reader_dataset` folder. 
+* The content of `HCS Dataset December 2021/extracted move boxes` (downloadable https://sites.google.com/view/chess-scoresheet-dataset/home/) should be placed in `datra/raw/hcs_dataset` folder. 
+
+To generate the full training and test sets, run the following commands: 
+```bash 
+python src/data/extract_from_raw.py
+python src/data/prepare_data.py
+```
+
+## Training. 
+
+Each experiment (model training) should be represented by a config (`.yaml`) file in `configs` folder. 
+Its results will be saved in the folder specified in the config file(usually in the `results` folder). 
+
+To train a model, run the following command: 
+```bash
+python src/train/train.py --config configs/cnn_bilstm_mltu_default.yaml
+```
+
+# Dependencies 
+Install mltu with 
+```bash
+pip install mltu
+``` 
+
