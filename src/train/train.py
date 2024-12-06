@@ -1,4 +1,11 @@
 import os
+import sys
+sys.path.append(os.path.abspath(".."))
+sys.path.append(os.path.abspath("../.."))
+sys.path.append(os.path.abspath("../../.."))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from urllib.request import urlopen
 import torch.optim as optim
 from torchsummaryX import summary
@@ -14,7 +21,8 @@ from mltu.transformers import ImageResizer, LabelIndexer, LabelPadding, ImageSho
 from mltu.augmentors import RandomBrightness, RandomRotate, RandomErodeDilate, RandomSharpen
 from mltu.annotations.images import CVImage
 
-from src.models.cnn_bilstm import CNNBILSTM
+#from src.models.cnn_bilstm import CNNBILSTM
+from src.models.HTR_VT import MaskedAutoencoderViT, create_model
 from argparse import ArgumentParser 
 import yaml 
 import numpy as np 
@@ -84,7 +92,7 @@ train_dataProvider.augmentors = [
 # Create our model 
 # NOTE to test another model architecture. add a filed "model" to the configs file 
 # and add if-else logic here to create the model specified in the configs file. 
-network = CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3)
+network = create_model(nb_cls=80, img_size=[128,32])
 loss = CTCLoss(blank=len(configs.vocab))
 optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
 
