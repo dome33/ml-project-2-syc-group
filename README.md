@@ -17,6 +17,14 @@ $ ssh USERNAME@izar.epfl.ch
 
 Where USERNAME is the Gaspar account
 
+## Uploading files from your computer to the cluster
+
+```
+rsync -azP /path/to/src <USERNAME>@izar.hpc.epfl.ch:/path/to/dest
+```
+
+Better using `rsync` that `scp` as it avoids having to re-upload a whole folder if you have only one of the files it contains that changes. This way only the changed file gets updated.
+
 ## Script 
 
 ```bash
@@ -42,11 +50,10 @@ $ sbatch FILE_NAME.run
 Where file name is the .run file as above
 If the job has been successfully uploaded you should be getting a job id for it.
 
-## Uploading a file to the ssh machine
+## Useful stuff
 
-```
-$ scp path/to/file USERNAME@izar.hpc.epfl.ch:path/to/file
-```
+To see whether the state of the jobs submitted you can use the `squeue` command.
+Once the job is completed there will be a new file generated with a name like SLURM-<jobid>
 
 
 
