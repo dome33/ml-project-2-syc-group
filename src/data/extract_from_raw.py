@@ -65,7 +65,7 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
             
 
 
-def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt_path):
+def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt_path, filter_path):
     """
     Processes a CSV file and copies corresponding files to a new folder with renamed files.
     Additionally, creates a .txt file logging the renamed files and their corresponding moves.
@@ -85,15 +85,24 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
     # Ensure the destination folder exists
     os.makedirs(destination_folder, exist_ok=True)
 
+    # read from filter_path 
+    with open(filter_path, 'r') as f:
+        filtered_names = f.read().splitlines()
+        filtered_names = set(filtered_names)
+        
     # Open the output text file for writing
     with open(output_txt_path, 'w') as output_file:
         output_file.write("id,prediction\n") 
+    
         for _, row in valid_moves.iterrows():
             # Determine the original file name using the 'id' column
             file_id = int(row['id'])
             png_filename = f"{file_id}.png"
             jpe_filename = f"{file_id}.jpe"
             
+            if png_filename in filtered_names : 
+                print(f"Skipped {png_filename}")
+                continue 
             # Check if the file exists as .png or .jpe
             if os.path.exists(os.path.join(source_folder, png_filename)):
                 original_filename = png_filename
@@ -133,6 +142,5 @@ if __name__ == "__main__":
     source_folder = "data/raw/chess_reader_data/images" 
     destination_folder = "data/chess_reader_dataset"
     output_txt_path = "data/chess_reader_dataset/labels.txt" 
-
-    process_prof_dataset(csv_path, source_folder, destination_folder, output_txt_path) 
-    
+    filter_path = "data/chess_reader_filter.txt"
+    process_prof_dataset(csv_path, source_folder, destination_folder, output_txt_path, filter_path)
