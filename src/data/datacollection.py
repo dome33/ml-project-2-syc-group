@@ -15,17 +15,19 @@ def get_box_positions(img)-> list[tuple[int, int, int, int]]:
     :return: list of tuples, the positions of the boxes in the image
     """
     
-    x , y , w , h = 161, 321, 186, 42 
+    x , y , w , h = 320, 628, 363, 80
     
     rects = [] 
     for i in range(0, 25): 
         new_x = x 
-        new_y = y + i * (h-1)
+        new_y = y + i * h
+        # new_y = y + i * (h-1)
         rects.append((new_x, new_y, w, h))
         
     for i in range(0, 25): 
         new_x = x + w 
-        new_y = y + i * (h-1)
+        new_y = y + i * h
+        # new_y = y + i * (h-1)
         rects.append((new_x, new_y, w, h))
         
     # sort the rects 
@@ -33,13 +35,15 @@ def get_box_positions(img)-> list[tuple[int, int, int, int]]:
 
     right_rects = [] 
     for i in range(0, 25): 
-        new_x = x + 2 * w + 50  
-        new_y = y + i * (h-1)
+        new_x = x + 2 * w + 100  
+        new_y = y + i * h
+        # new_y = y + i * (h-1)
         right_rects.append((new_x, new_y, w, h))
 
     for i in range(0, 25): 
-        new_x = x + 3 * w + 57
-        new_y = y + i * (h-1)
+        new_x = x + 3 * w + 100
+        new_y = y + i * h
+        # new_y = y + i * (h-1)
         right_rects.append((new_x, new_y, w, h))
     right_rects = sorted(right_rects, key=lambda x: (x[0],x[1])) 
 
@@ -62,6 +66,79 @@ def extract_moves_from_image(img_path:str)->list[np.ndarray]:
         crop = img[y:y+h, x:x+w]
         moves.append(crop) 
     return moves
+
+
+def process_chess_dataset(dataset_path: str, max_folders: int = None):
+    """
+    Processes the custom dataset, extracts box images from PNG files, and maps them to chess moves.
+    Saves the result in a single box-to-move mapping file located in the dataset directory.
+    
+    :param dataset_path: str, the path to the 'custom_dataset' folder
+    :param max_folders: int, the maximum number of data folders to process. Processes all if None.
+    """
+    game_folders = [f for f in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, f))]
+    game_folders = sorted(game_folders)  # Ensure consistent processing order
+    
+    if max_folders is not None:
+        game_folders = game_folders[:max_folders]
+
+    # Create a list to hold all box-to-move mappings
+    all_box_to_move = []
+
+    for game_folder in game_folders:
+        game_folder_path = os.path.join(dataset_path, game_folder)
+        
+        # Find all PNG files in the folder
+        png_files = [os.path.join(game_folder_path, f) for f in os.listdir(game_folder_path) if f.endswith(".png")]
+        moves_file_path = os.path.join(game_folder_path, "moves_san.txt")
+        
+        if not png_files or not os.path.exists(moves_file_path):
+            print(f"Missing required files in {game_folder_path}. Skipping...")
+            continue
+        
+        # Read moves from the moves_san.txt file
+        try:
+            with open(moves_file_path, "r") as f:
+                moves_lines = f.readlines()
+        except Exception as e:
+            print(f"Error reading moves file in {game_folder_path}: {e}")
+            continue
+        
+        # Parse moves
+        moves = []
+        for line in moves_lines:
+            parts = line.strip().split()
+            if len(parts) == 3:
+                _, white_move, black_move = parts
+                moves.append(white_move)
+                moves.append(black_move)
+        
+        # Extract boxes from each PNG and save cropped images
+        move_index = 0
+        for png_file in png_files:
+            img = cv2.imread(png_file)
+            box_positions = get_box_positions(img)
+            for rect in box_positions:
+                if move_index >= len(moves):
+                    break
+                
+                x, y, w, h = rect
+                box_img = img[y:y+h, x:x+w]
+                box_img_path = os.path.join(game_folder_path, f"box_{move_index}.png")
+                cv2.imwrite(box_img_path, box_img)
+                
+                # Add the box-to-move mapping to the list
+                all_box_to_move.append(f"{box_img_path} {moves[move_index]}")
+                move_index += 1
+
+    # Write all box-to-move mappings to a single text file in the dataset directory
+    output_txt_path = os.path.join(dataset_path, "boxes_to_moves.txt")
+    try:
+        with open(output_txt_path, "w") as f:
+            f.writelines("\n".join(all_box_to_move))
+        print(f"All box-to-move mappings saved to: {output_txt_path}")
+    except Exception as e:
+        print(f"Error writing output file: {e}")
 
    
 def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path):
@@ -108,8 +185,6 @@ def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path
     
     
     
-    
-    
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser() 
     parser.add_argument("--game_id", type=str, required=True)
@@ -118,4 +193,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     extract_game_moves_san_frompgn(args.game_id, args.destination_path, args.pgns_dataset_path)
+
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("--dataset_path", type=str, required=True)
+#     args = parser.parse_args()
+    
+#     process_chess_dataset(args.dataset_path)
     
