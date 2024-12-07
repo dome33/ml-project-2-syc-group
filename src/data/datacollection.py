@@ -127,18 +127,22 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None):
                 box_img_path = os.path.join(game_folder_path, f"box_{move_index}.png")
                 cv2.imwrite(box_img_path, box_img)
                 
-                # Add the box-to-move mapping to the list
-                all_box_to_move.append(f"{box_img_path} {moves[move_index]}")
+                # Add the box-to-move mapping to the list in the required format
+                all_box_to_move.append(f"{box_img_path},{moves[move_index]}")
                 move_index += 1
 
     # Write all box-to-move mappings to a single text file in the dataset directory
     output_txt_path = os.path.join(dataset_path, "boxes_to_moves.txt")
     try:
         with open(output_txt_path, "w") as f:
+            # Write the header first
+            f.write("id,prediction\n")
+            # Write the box-to-move mappings
             f.writelines("\n".join(all_box_to_move))
         print(f"All box-to-move mappings saved to: {output_txt_path}")
     except Exception as e:
         print(f"Error writing output file: {e}")
+
 
    
 def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path):
@@ -181,9 +185,7 @@ def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path
     
     print(f"SAN moves saved for game {game_idx} in {dir_path}")
             
-                
-    
-    
+
     
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser() 
