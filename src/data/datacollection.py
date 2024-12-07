@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import chess.pgn 
 import argparse 
 import os 
+
+
 def get_box_positions(img)-> list[tuple[int, int, int, int]]: 
     """
-    Hardcoded to output the positions of the boxes in the image using the 
-    Chess.com scoresheet layout. 
+    Returns the positions of the boxes in the image (x, y, width, height) 
+    Hardcoded based on the CHESS.COM scoresheet layout. 
     
     :param img: np.ndarray, the image
     :return: list of tuples, the positions of the boxes in the image
