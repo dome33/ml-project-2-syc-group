@@ -238,10 +238,7 @@ class MaskedAutoencoderViT(nn.Module):
         #masking: length -> length * mask_ratio
         if use_masking:
             x = self.random_masking(x, mask_ratio, max_span_length)
-        #print(x.shape)
-        print("Shape of x before adding pos_embed:", x.shape)
-        print("Shape of x before adding pos_embed:", x.shape)
-
+       
         x = x + self.pos_embed
         # apply Transformer blocks
         for blk in self.blocks:
@@ -251,6 +248,8 @@ class MaskedAutoencoderViT(nn.Module):
         # To CTC Loss
         x = self.head(x)
         x = self.layer_norm(x)
+        
+        x = F.log_softmax(x, 2)
 
         return x
 
@@ -258,7 +257,7 @@ class MaskedAutoencoderViT(nn.Module):
 def create_model(nb_cls, img_size, **kwargs):
     model = MaskedAutoencoderViT(nb_cls,
                                  img_size=img_size,
-                                 patch_size=(4, 64),
+                                 patch_size=(16, 16),
                                  embed_dim=768,
                                  depth=4,
                                  num_heads=6,
