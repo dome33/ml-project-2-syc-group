@@ -45,7 +45,7 @@ def get_box_positions(img)-> list[tuple[int, int, int, int]]:
         new_y = y + i * h
         # new_y = y + i * (h-1)
         right_rects.append((new_x, new_y, w, h))
-    right_rects = sorted(right_rects, key=lambda x: (x[0],x[1])) 
+    right_rects = sorted(right_rects, key=lambda x: (x[1],x[0])) 
 
     rects.extend(right_rects) 
     return rects 
@@ -129,11 +129,12 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: in
                 box_img = img[y:y+h, x:x+w]
                 box_img = img[y-offset:y+h+offset, x-offset:x+w+offset]
                 
-                box_img_path = os.path.join(dataset_path, game_folder, f"box_{move_index}.png")
+                relatitve_box_img_path = os.path.join(game_folder, f"box_{move_index}.png")
+                box_img_path = os.path.join(dataset_path, relatitve_box_img_path) 
                 cv2.imwrite(box_img_path, box_img)
                 
                 # Add the box-to-move mapping to the list in the required format
-                all_box_to_move.append(f"{box_img_path},{moves[move_index]}")
+                all_box_to_move.append(f"{relatitve_box_img_path},{moves[move_index]}")
                 move_index += 1
                 
 
