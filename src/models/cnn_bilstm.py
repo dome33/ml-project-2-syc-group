@@ -97,6 +97,11 @@ class CNNBILSTM(nn.Module):
         # transpose image to channel first
         images_flaot = images_flaot.permute(0, 3, 1, 2)
         
+        # import matplotlib.pyplot as plt 
+        # # show rgb (3,h,w) image
+        # plt.imshow(images_flaot[0].permute(1,2,0).cpu().numpy())
+        # plt.show()
+        
         # apply convolutions
         x = self.rb1(images_flaot)
         x = self.rb2(x)
