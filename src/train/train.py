@@ -13,7 +13,7 @@ from mltu.preprocessors import ImageReader
 from mltu.transformers import ImageResizer, LabelIndexer, LabelPadding, ImageShowCV2
 from mltu.augmentors import RandomBrightness, RandomRotate, RandomErodeDilate, RandomSharpen
 from mltu.annotations.images import CVImage
-
+from src.augmentations import RandomRotateFillWithMedian 
 from src.models.cnn_bilstm import CNNBILSTM
 from argparse import ArgumentParser 
 import yaml 
@@ -46,6 +46,7 @@ max_len = max([len(label) for _,label in train_dataset])
 configs.vocab = "".join(sorted(vocab))
 configs.max_text_length = max_len
 
+print(f"Len of train dataset: {len(train_dataset)}") 
 
 # Create a data provider for the dataset
 train_dataProvider = DataProvider(
@@ -77,7 +78,7 @@ train_dataProvider.augmentors = [
     RandomBrightness(), 
     RandomErodeDilate(),
     RandomSharpen(),
-    RandomRotate(angle=10), 
+    RandomRotateFillWithMedian(angle=10), 
 ]
 
 
