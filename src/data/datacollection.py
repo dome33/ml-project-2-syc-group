@@ -68,7 +68,7 @@ def extract_moves_from_image(img_path:str)->list[np.ndarray]:
     return moves
 
 
-def process_chess_dataset(dataset_path: str, max_folders: int = None):
+def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: int = 50): 
     """
     Processes the custom dataset, extracts box images from PNG files, and maps them to chess moves.
     Saves the result in a single box-to-move mapping file located in the dataset directory.
@@ -86,11 +86,13 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None):
     all_box_to_move = []
 
     for game_folder in game_folders:
+        print(f"Processing {game_folder}...")
         game_folder_path = os.path.join(dataset_path, game_folder)
         
         # Find all PNG files in the folder
         png_files = [os.path.join(game_folder_path, f) for f in os.listdir(game_folder_path) if f.startswith("game")]
         moves_file_path = os.path.join(game_folder_path, "moves_san.txt")
+        
         
         if not png_files or not os.path.exists(moves_file_path):
             print(f"Missing required files in {game_folder_path}. Skipping...")
@@ -123,9 +125,11 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None):
                     break
                 
                 x, y, w, h = rect
-                box_img = img[y:y+h, x:x+w]
-                box_img_path = os.path.join(game_folder, f"box_{move_index}.png")
                 
+                box_img = img[y:y+h, x:x+w]
+                box_img = img[y-offset:y+h+offset, x-offset:x+w+offset]
+                
+                box_img_path = os.path.join(dataset_path, game_folder, f"box_{move_index}.png")
                 cv2.imwrite(box_img_path, box_img)
                 
                 # Add the box-to-move mapping to the list in the required format
