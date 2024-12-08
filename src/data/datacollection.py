@@ -89,7 +89,7 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None):
         game_folder_path = os.path.join(dataset_path, game_folder)
         
         # Find all PNG files in the folder
-        png_files = [os.path.join(game_folder_path, f) for f in os.listdir(game_folder_path) if f.endswith(".png")]
+        png_files = [os.path.join(game_folder_path, f) for f in os.listdir(game_folder_path) if f.startswith("game")]
         moves_file_path = os.path.join(game_folder_path, "moves_san.txt")
         
         if not png_files or not os.path.exists(moves_file_path):
@@ -124,15 +124,17 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None):
                 
                 x, y, w, h = rect
                 box_img = img[y:y+h, x:x+w]
-                box_img_path = os.path.join(game_folder_path, f"box_{move_index}.png")
+                box_img_path = os.path.join(game_folder, f"box_{move_index}.png")
+                
                 cv2.imwrite(box_img_path, box_img)
                 
                 # Add the box-to-move mapping to the list in the required format
                 all_box_to_move.append(f"{box_img_path},{moves[move_index]}")
                 move_index += 1
+                
 
     # Write all box-to-move mappings to a single text file in the dataset directory
-    output_txt_path = os.path.join(dataset_path, "boxes_to_moves.txt")
+    output_txt_path = os.path.join(dataset_path, "labels.txt")
     try:
         with open(output_txt_path, "w") as f:
             # Write the header first
@@ -186,20 +188,21 @@ def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path
     print(f"SAN moves saved for game {game_idx} in {dir_path}")
             
 
-    
+
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser() 
-    parser.add_argument("--game_id", type=str, required=True)
-    parser.add_argument("--destination_path", type=str, required=True)
-    parser.add_argument("--pgns_dataset_path", type=str, required=True)
+    parser.add_argument("--extract", action="store_true")
+    parser.add_argument("--process", action="store_true") 
+    parser.add_argument("--game_id", type=str, default=None) 
+    parser.add_argument("--destination_path", default=None) 
+    parser.add_argument("--pgns_dataset_path", type=str, default=None) 
     args = parser.parse_args()
     
-    extract_game_moves_san_frompgn(args.game_id, args.destination_path, args.pgns_dataset_path)
-
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument("--dataset_path", type=str, required=True)
-#     args = parser.parse_args()
-    
-#     process_chess_dataset(args.dataset_path)
-    
+    if args.extract: 
+        assert args.game_id is not None
+        assert args.destination_path is not None
+        assert args.pgns_dataset_path is not None
+        extract_game_moves_san_frompgn(args.game_id, args.destination_path, args.pgns_dataset_path)
+    if args.process:
+        assert args.destination_path is not None 
+        process_chess_dataset(args.destination_path)
