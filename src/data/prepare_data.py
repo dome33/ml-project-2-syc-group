@@ -49,7 +49,7 @@ if __name__ == "__main__":
     np.save("data/valset.npy", valdataset) 
     
     # TRAIN 
-    train_dataset = online_dataset[:split] + custom_dataset 
+    train_dataset = custom_dataset + online_dataset[:split]
     random.shuffle(train_dataset) 
     np.save("data/trainset.npy", train_dataset) 
     
