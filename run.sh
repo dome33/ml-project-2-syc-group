@@ -41,6 +41,8 @@ echo "Dependencies have been installed, Now running the given code"
 source .env 
 
 # Insert code
+pyhton src/data/extract_from_raw.py 
+python src/data/prepare_data.py 
 python src/train/train.py --config configs/cnn_bilstm_mltu_default.yaml
 
 echo "Batch is complete"
