@@ -1,0 +1,9 @@
+model_path : "results/for_visu"
+height : 64
+width : 256 
+batch_size : 32 
+learning_rate : 0.001
+train_epochs : 1000 
+device : "mps" 
+
+# to visualize the images during trainign. 
