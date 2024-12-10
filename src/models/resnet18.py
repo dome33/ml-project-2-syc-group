@@ -41,8 +41,7 @@ class BasicBlock(nn.Module):
 
 class ResNet18(nn.Module):
 
-    def __init__(self, nb_feat = 384):
-        
+    def __init__(self, nb_feat=384):
         self.inplanes = nb_feat // 4
         super(ResNet18, self).__init__()
         self.conv1 = nn.Conv2d(3, nb_feat // 4, kernel_size=3, stride=(2, 1), padding=1, bias=False)
@@ -50,7 +49,7 @@ class ResNet18(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=(2, 1), padding=1)
         self.layer1 = self._make_layer(BasicBlock, nb_feat // 4, 2, stride=(2, 1))
-        self.layer2 = self._make_layer(BasicBlock, nb_feat // 2, 2, stride=2)
+        self.layer2 = self._make_layer(BasicBlock, nb_feat // 2, 2, stride=(2, 1))  # Changed stride
         self.layer3 = self._make_layer(BasicBlock, nb_feat, 2, stride=2)
 
     def _make_layer(self, block, planes, blocks, stride=1):

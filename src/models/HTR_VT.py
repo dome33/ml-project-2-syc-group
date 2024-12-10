@@ -257,7 +257,7 @@ class MaskedAutoencoderViT(nn.Module):
 def create_model(nb_cls, img_size, **kwargs):
     model = MaskedAutoencoderViT(nb_cls,
                                  img_size=img_size,
-                                 patch_size=(16, 16),
+                                 patch_size=(4, 32),
                                  embed_dim=768,
                                  depth=4,
                                  num_heads=6,
