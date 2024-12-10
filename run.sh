@@ -5,9 +5,6 @@
 #SBATCH --mem 10G
 #SBATCH --time 00:30:00
 #SBATCH --gres gpu:1
-#SBATCH --account cs-433
-#SBATCH --qos debug
-
 
 cd ../
 #python ../test.py
