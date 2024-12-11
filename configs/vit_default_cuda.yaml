@@ -4,5 +4,5 @@ width : 128
 batch_size : 64 
 learning_rate : 0.001
 train_epochs : 1000 
-device : "mps" 
-model : "cuda"
+device : "cuda" 
+model : "htr_vit"
