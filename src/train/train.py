@@ -12,6 +12,9 @@ from mltu.augmentors import RandomBrightness, RandomRotate, RandomErodeDilate, R
 from mltu.annotations.images import CVImage
 from src.augmentations import RandomRotateFillWithMedian 
 from src.models.cnn_bilstm import CNNBILSTM
+
+#from src.models.cnn_bilstm import CNNBILSTM
+from src.models.HTR_VT import MaskedAutoencoderViT, create_model
 from argparse import ArgumentParser 
 import yaml 
 import numpy as np 
@@ -95,7 +98,6 @@ model2network = {
 network = model2network[configs.model]
 loss = CTCLossShortcut(blank=len(configs.vocab)) 
 optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
-
 
 # put on cuda device if available
 network = network.to(configs.device)
