@@ -1,0 +1,11 @@
+model_path : "results/htr_net"
+height : 64
+width : 256 
+batch_size : 64
+learning_rate : 0.001
+train_epochs : 1000 
+device : "mps" 
+model: "htr_net"
+
+# new size (old was 32x128) 
+# also new preprocess now filling with mean. 

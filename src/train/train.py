@@ -1,12 +1,9 @@
 import os
-from urllib.request import urlopen
 import torch.optim as optim
-from torchsummaryX import summary
-
 from mltu.torch.model import Model
 from mltu.torch.losses import CTCLoss
 from mltu.torch.dataProvider import DataProvider
-from mltu.torch.metrics import CERMetric, WERMetric
+from src.utils import CERMetricShortCut, CTCLossShortcut, WERMetricShortCut 
 from mltu.torch.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, Model2onnx, ReduceLROnPlateau
 
 from mltu.preprocessors import ImageReader
@@ -18,8 +15,10 @@ from src.models.cnn_bilstm import CNNBILSTM
 from argparse import ArgumentParser 
 import yaml 
 import numpy as np 
-from types import SimpleNamespace
-from src.utils import split_data_provider 
+from types import SimpleNamespace 
+from src.models.htr_net import HTRNet
+
+possible_models = ["cnn_bilstm", "htr_net"] 
 
 # LOAD CONFIGS 
 parser = ArgumentParser() 
@@ -28,12 +27,16 @@ args = parser.parse_args()
 config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
 configs = SimpleNamespace(**config) 
 
+assert configs.model is not None, "Please specify a model architecture in the configs file"
+assert configs.model in possible_models, f"Model {configs.model} not found. Possible models are {possible_models}" 
+
 
 # LOAD THE DATASET. 
 train_dataset = np.load("data/trainset.npy") 
 train_dataset = [(name, label) for name, label in train_dataset] 
 val_dataset = np.load("data/valset.npy") 
 val_dataset = [(name, label) for name, label in val_dataset]
+
 
 # get the vocabulary 
 vocab = [c for _,label in train_dataset for c in label] 
@@ -45,7 +48,6 @@ max_len = max([len(label) for _,label in train_dataset])
 # Save vocab and maximum text length to configs
 configs.vocab = "".join(sorted(vocab))
 configs.max_text_length = max_len
-
 print(f"Len of train dataset: {len(train_dataset)}") 
 
 # Create a data provider for the dataset
@@ -62,7 +64,6 @@ train_dataProvider = DataProvider(
         ],
     use_cache=True,
 )
-
 val_dataProvider = DataProvider(
     dataset = val_dataset,
     skip_validation=train_dataProvider._skip_validation,
@@ -84,9 +85,15 @@ train_dataProvider.augmentors = [
 
 # Create our model 
 # NOTE to test another model architecture. add a filed "model" to the configs file 
-# and add if-else logic here to create the model specified in the configs file. 
-network = CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3)
-loss = CTCLoss(blank=len(configs.vocab))
+# and add if-else logic here to create the model specified in the configs file.
+
+model2network = {
+    "cnn_bilstm": CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3),
+    "htr_net": HTRNet(len(configs.vocab)+1, configs.device)
+}
+
+network = model2network[configs.model]
+loss = CTCLossShortcut(blank=len(configs.vocab)) 
 optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
 
 
@@ -110,14 +117,15 @@ model2onnx = Model2onnx(
 # create model object that will handle training and testing of the network
 # NOTE : FOR REASONS I DONT KNOW (YET), DATA IS PASSED TO THE MODEL WITH SHAPE 
 # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
-# adapt your model accordingly (look into NOTE of src/models/cnn_bilstm.py) 
-model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMetric(configs.vocab)])
+
+model = Model(network, optimizer, loss, metrics=[CERMetricShortCut(configs.vocab), WERMetricShortCut(configs.vocab)])
 model.fit(
     train_dataProvider, 
     val_dataProvider, 
     epochs=1000, 
     callbacks=[earlyStopping, modelCheckpoint, tb_callback, reduce_lr, model2onnx]
-    )
+)
+
 
 # Save training and validation datasets as csv files
 train_dataProvider.to_csv(os.path.join(configs.model_path, "train.csv"))
