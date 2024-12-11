@@ -1,0 +1,11 @@
+model_path : "results/cnn_bilstm_mltu2"
+height : 64
+width : 256 
+batch_size : 64 
+learning_rate : 0.002
+train_epochs : 1000 
+device : "mps" 
+model : "cnn_bilstm"
+
+# novelty compared to cnn_bilstm_mltu2 is
+# we have more data. 

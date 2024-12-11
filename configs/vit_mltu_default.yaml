@@ -1,0 +1,7 @@
+model_path : "results/vit_default"
+height : 32 
+width : 128 
+batch_size : 64 
+learning_rate : 0.001
+train_epochs : 1000 
+device : "mps" 
