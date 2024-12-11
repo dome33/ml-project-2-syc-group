@@ -1,11 +1,11 @@
 chess
 matplotlib
 mltu
-numpy
+numpy==1.26.4
 opencv_python
 pandas
 PyYAML
-torch
+torch==2.2.0
 torchsummaryX
 tqdm
 onnx
