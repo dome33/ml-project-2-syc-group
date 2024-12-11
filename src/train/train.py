@@ -21,7 +21,7 @@ import numpy as np
 from types import SimpleNamespace 
 from src.models.htr_net import HTRNet
 
-possible_models = ["cnn_bilstm", "htr_net"] 
+possible_models = ["cnn_bilstm", "htr_net", "htr_vit"] 
 
 # LOAD CONFIGS 
 parser = ArgumentParser() 
@@ -92,7 +92,8 @@ train_dataProvider.augmentors = [
 
 model2network = {
     "cnn_bilstm": CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3),
-    "htr_net": HTRNet(len(configs.vocab)+1, configs.device)
+    "htr_net": HTRNet(len(configs.vocab)+1, configs.device), 
+    "htr_vit": create_model(len(configs.vocab)+1, (configs.height, configs.width)) 
 }
 
 network = model2network[configs.model]
