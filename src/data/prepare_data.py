@@ -44,6 +44,9 @@ if __name__ == "__main__":
         custom_dataset = custom_dataset[:args.size_custom] 
 
         
+    print(f"Chess reader dataset: {len(chess_reader_dataset)}")
+    print(f"Online dataset: {len(online_dataset)}")
+    print(f"Custom dataset: {len(custom_dataset)}")
     
     random.shuffle(chess_reader_dataset) 
     random.shuffle(online_dataset)
@@ -52,7 +55,7 @@ if __name__ == "__main__":
     # TEST 
     split = int(len(chess_reader_dataset) * CHESS_READER_SPLIT) 
     np.save("data/testset.npy", chess_reader_dataset[:split]) 
-    
+    print(f"Testset: {len(chess_reader_dataset[:split])}") 
     # VALIDATION 
     valdataset = chess_reader_dataset[split:] 
     split = int(len(online_dataset) * ONLINE_SPLIT)
@@ -60,7 +63,7 @@ if __name__ == "__main__":
     split = int(len(custom_dataset) * CUSTOM_SPLIT)
     valdataset += custom_dataset[split:]
     random.shuffle(valdataset)
-    
+    print(f"Valset: {len(valdataset)}") 
     np.save("data/valset.npy", valdataset) 
     
     # TRAIN 
@@ -70,6 +73,8 @@ if __name__ == "__main__":
     
     random.shuffle(train_dataset) 
     np.save("data/trainset.npy", train_dataset) 
+    
+    print(f"Trainset: {len(train_dataset)}")
     
     
     
