@@ -1,12 +1,14 @@
 import pandas as pd 
 import random 
 import numpy as np 
+import argparse
+
 DEFAULT_HEIGHT = 90 
 DEFAULT_WIDTH = 400 
 
 CHESS_READER_SPLIT = 0.5 
-ONLINE_SPLIT = 0.9
-
+ONLINE_SPLIT = 0.95
+CUSTOM_SPLIT = 0.95 
 
 
 # Paths to datasets
@@ -28,10 +30,20 @@ def load_images_labels(path):
     
      
 if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser(description="Prepare data for training") 
+    parser.add_argument("--size_custom", type=int, default=-1, help="Size of custom dataset")
+    args = parser.parse_args() 
+    
+    
     chess_reader_dataset = load_images_labels(chess_reader_data_path) 
     online_dataset = load_images_labels(online_data_path)
     custom_dataset = load_images_labels(custom_data_path)
     
+    if (args.size_custom != -1): 
+        custom_dataset = custom_dataset[:args.size_custom] 
+
+        
     
     random.shuffle(chess_reader_dataset) 
     random.shuffle(online_dataset)
@@ -45,11 +57,17 @@ if __name__ == "__main__":
     valdataset = chess_reader_dataset[split:] 
     split = int(len(online_dataset) * ONLINE_SPLIT)
     valdataset += online_dataset[split:] 
+    split = int(len(custom_dataset) * CUSTOM_SPLIT)
+    valdataset += custom_dataset[split:]
+    random.shuffle(valdataset)
     
     np.save("data/valset.npy", valdataset) 
     
     # TRAIN 
-    train_dataset = custom_dataset + online_dataset[:split]
+    train_dataset = custom_dataset[:split] 
+    split = int(len(online_dataset) * ONLINE_SPLIT) 
+    train_dataset += online_dataset[:split] 
+    
     random.shuffle(train_dataset) 
     np.save("data/trainset.npy", train_dataset) 
     
