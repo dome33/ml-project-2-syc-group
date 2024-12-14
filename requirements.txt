@@ -10,3 +10,4 @@ torchsummaryX
 tqdm
 onnx
 tensorboard
+timm 
