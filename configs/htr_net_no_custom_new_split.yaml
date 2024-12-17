@@ -1,0 +1,8 @@
+model_path : "results/htr_net_no_custom_new_split"
+height : 64
+width : 256
+batch_size : 64
+learning_rate : 0.001
+train_epochs : 1000
+device : "cuda"
+model: "htr_net"
