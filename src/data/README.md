@@ -1,6 +1,6 @@
 The python files in this folder are the ones used to create a unified dataset
 
-## data_collection.py
+## custom_dataset.py
 
 This file contains scripts related to the custom dataset we created.
 
@@ -9,7 +9,7 @@ Extracts the moves of a specified game from a PGN file and save them in SAN nota
 
 **Example Usage:**
 ```
-python data_collection.py --extract --game_id 1 --destination_path ./output --pgns_dataset_path ./games.pgn
+python custom_dataset.py --extract --game_id 1 --destination_path ./output --pgns_dataset_path ./games.pgn
 ```
 
 ### Process the dataset
@@ -19,11 +19,11 @@ Saves the result in a single box-to-move mapping file located in the dataset dir
 
 **Example Usage:**
 ```
-python data_collection.py --process --destination_path ./custom_dataset
+python custom_datset.py --process --destination_path ./custom_dataset
 ```
 
 
-## extract_from_raw.py
+## existing_datasets.py
 
 This file contains scripts to process both the [Handwritten Chess Scoresheet (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) dataset and the ChessReader dataset.
 
@@ -31,7 +31,7 @@ The files used as input and output are specified in the python script and can ea
 
 **Example Usage:**
 ```
-python extract_from_raw.py
+python existing_datasets.py
 ```
 
 
