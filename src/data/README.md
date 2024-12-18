@@ -27,7 +27,7 @@ python data_collection.py --process --destination_path ./custom_dataset
 
 This file contains scripts to process both the [Handwritten Chess Scoresheet (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) dataset and the ChessReader dataset.
 
-The files used as input and output are specified in the python script and can easily be changed. It produces a `labels.txt` file containing image-to-move mappings in CSV format (id,prediction) and it organize image files in their respective folders.
+The files used as input and output are specified in the python script and can easily be changed. It produces a `labels.txt` file containing image-to-move mappings in CSV format (id,prediction) and it organizes image files in their respective folders.
 
 **Example Usage:**
 ```
