@@ -1,9 +1,0 @@
-model_path : "results/cnn_bilstm_mltu0"
-height : 32 
-width : 128 
-batch_size : 64 
-learning_rate : 0.002
-train_epochs : 1000 
-device : "mps" 
-
-# custom dataset has 1000 samples. 
