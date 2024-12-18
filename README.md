@@ -1,6 +1,6 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/UDdkOEMs)
 
-# Dataset
+# Machine Learning for Chess Movement Recognition
 
 We used two existing datasets to train and test our model:
 - [Handwritten Chess Scoresheet Dataset (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) from Owen Eicher
@@ -12,6 +12,20 @@ In addition, we created our own dataset by handwritting publicly available chess
 ├── game<game_id>
 │   ├── game<game_id>.png     # Scan of the handwritten game                  
 │   ├── moves_san.txt         # The moves played during the game
+```
+
+## Downloading the data
+
+* The content of `2023 11 Export ChessReader Data` found in the drive provided by the professor should be placed in the `data/raw/chess_reader_data` folder. 
+* The content of `HCS Dataset December 2021/extracted move boxes` (downloadable https://sites.google.com/view/chess-scoresheet-dataset/home/) should be placed in `data/raw/hcs_dataset` folder.
+
+More informations on the scripts to process the data can be found in the [dedicated README.md](https://github.com/CS-433/ml-project-2-syc-group/blob/main/src/data/README.md)
+
+To generate the full training and test sets, run the following commands: 
+```bash
+python src/data/existing_datasets.py
+python src/data/custom_dataset.py --process --destination_path ./data/custom_dataset
+python src/data/prepare_data.py
 ```
 
 ## Project structure 
@@ -30,19 +44,6 @@ In addition, we created our own dataset by handwritting publicly available chess
 ├── README.md
 ├── requirements.txt
 ├── run.sh            
-```
-
-## Data
-* The content of `2023 11 Export ChessReader Data` found in the drive provided by the professor should be placed in the `data/raw/chess_reader_data` folder. 
-* The content of `HCS Dataset December 2021/extracted move boxes` (downloadable https://sites.google.com/view/chess-scoresheet-dataset/home/) should be placed in `data/raw/hcs_dataset` folder.
-
-More informations on the scripts to process the data can be found in the [dedicated README.md](https://github.com/CS-433/ml-project-2-syc-group/blob/main/src/data/README.md)
-
-To generate the full training and test sets, run the following commands: 
-```bash
-python src/data/existing_datasets.py
-python src/data/custom_dataset.py --process --destination_path ./data/custom_dataset
-python src/data/prepare_data.py
 ```
 
 ## Training
