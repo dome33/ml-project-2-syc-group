@@ -19,7 +19,7 @@ Saves the result in a single box-to-move mapping file located in the dataset dir
 
 **Example Usage:**
 ```
-python custom_datset.py --process --destination_path ./custom_dataset
+python custom_dataset.py --process --destination_path ./data/custom_dataset
 ```
 
 
