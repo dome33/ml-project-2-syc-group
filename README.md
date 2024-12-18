@@ -30,12 +30,7 @@ python src/data/custom_dataset.py --process --destination_path ./data/custom_dat
 python src/data/prepare_data.py
 ```
 
-Note: When we experiment the outcome of a training without our dataset, we set the argument `size_custom` to 0.
-The command becomes:
 
-```bash
-python src/data/prepare_data.py --size_custom 0
-```
 
 ## Project structure 
 
@@ -72,3 +67,49 @@ Install the requirements using the following command:
 ```bash
 pip install -r requirements.txt
 ``` 
+
+## Models
+
+- The best performing CNN-BiLSTM-MLTU and HTR-Net architectures we trained are present in `results/cnn_bilstm_mltu_all_data` and  `results/htr_full_data`respectively. You can use them for inference by using `src/inference.py` script. 
+- The best performing fine-tuned TrOCR model is present in https://drive.google.com/drive/u/2/folders/12I3GhCDFewbT3f5TpPIMebGkLSHleFem. 
+
+
+## Results 
+
+In this section, we present the results of our experiments and explain how to reproduce them.
+
+- **Impact of our custom made dataset**
+    The following are tables I and II of the report. They demonstrate that our custom dataset in facet improves the performence of our models. We generate them in the `notebooks/interpret_results.ipynb` notebook. All the models used in these results are stored in the `results` folder.
+
+    To experiment training without our custom dataset, we set the argument `size_custom` to 0 in `src/data/prepare_data.py` . The command becomes:
+    ```bash
+    python src/data/prepare_data.py --size_custom 0
+    ```
+
+
+    ### Table for CER
+
+    | **Custom Dataset**      | **WITHOUT Val** | **WITHOUT Test** | **WITH Val** | **WITH Test** |
+    |--------------------------|-----------------|------------------|--------------|---------------|
+    | **CNN-BiLSTM-MLTU**     | 0.1581          | **0.3559**       | 0.0948       | **0.1761**    |
+    | **HTR-Net**             | **0.152**       | 0.3601           | **0.091**    | 0.2021        |
+
+    *Table 1: Model performance in terms of **CER**.*
+
+    ---
+
+    ### Table for WER
+
+    | **Custom Dataset**      | **WITHOUT Val** | **WITHOUT Test** | **WITH Val** | **WITH Test** |
+    |--------------------------|-----------------|------------------|--------------|---------------|
+    | **CNN-BiLSTM-MLTU**     | 0.3033          | **0.5506**       | **0.195**    | **0.3279**    |
+    | **HTR-Net**             | **0.29**        | 0.6073           | 0.2004       | 0.3846        |
+
+    *Table 2: Model performance in terms of **WER**.*
+    
+
+- **Fine tuned model** The results of the fine tuned model are the following, we generate them in the `notebooks/interpret_finetuned.ipynb` notebook. 
+    | Metric | Validation Set | Test Set |
+    |--------|----------------|----------|
+    | CER    | 0.1044         | 0.1814   |
+    | WER    | 0.2193         | 0.3482   |
