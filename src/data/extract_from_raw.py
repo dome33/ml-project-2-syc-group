@@ -2,22 +2,6 @@ import os
 import shutil
 import pandas as pd
 
-"""
-The python files in this folder are the one used to create a unified dataset
-
-The files with the boxes images get renamed to match the following format: `<dataset>_<game id>_<colour>_<move number>.png` where:
-- `<dataset>` is either 'dataset1' or 'dataset2', depending on which initial dataset the image came from.
-- `<game_id>` is the game number, it enable us to know which picture go together.
-- `<colour>` is either 'black' or 'white' depending on which player played the given move.
-- `<move_number>` is the id of the move. It enable us to know the chronology of the game.
-
-The tags.txt file has been created using the two helper functions contained in `process_box_file.py` and `process_extracted_moves_file.py`. 
-It contains one line for each of the files in the following format: `<file name> <corresponding move>` where:
-- `<file name>` is in the same format as specified above.
-- `<corresponding move>` is the label of the file.
-
-"""
-
 def process_online_dataset(txt_file_path, source_folder, destination_folder, output_txt_path): 
     """
     Processes a text file where each line has the format `<file name> <corresponding move>`,
@@ -32,6 +16,7 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
     Returns:
         None
     """
+
     # Ensure the destination folder exists
     os.makedirs(destination_folder, exist_ok=True)
 
@@ -45,7 +30,6 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
                 print(f"Skipped empty or malformed line: {line}")
                 continue
             # Write the file name and move to the output text file 
-            # img_id = parts[0].split(".")[0] 
             output_file.write(f"{parts[0]},{parts[1]}\n")
             
             original_file_name = parts[0]
@@ -61,9 +45,6 @@ def process_online_dataset(txt_file_path, source_folder, destination_folder, out
             else:
                 print(f"File not found: {source_path}")
             
-            
-            
-
 
 def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt_path, filter_path):
     """
@@ -76,6 +57,7 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
         destination_folder (str): Path to the folder where files will be copied and renamed.
         output_txt_path (str): Path to the .txt file to be created.
     """
+
     # Read the CSV file
     df = pd.read_csv(csv_path)
     
@@ -131,7 +113,6 @@ def process_prof_dataset(csv_path, source_folder, destination_folder, output_txt
 
             
 if __name__ == "__main__":
-    # Example usage
     txt_file_path = "data/raw/hcs_dataset/extracted move boxes/train_data.txt" 
     source_folder = "data/raw/hcs_dataset/extracted move boxes"
     destination_folder = "data/online_dataset"
