@@ -1,6 +1,9 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/UDdkOEMs)
-
 # Machine Learning for Chess Movement Recognition
+
+This repository contains the code for the project of the course CS-433 Machine Learning at EPFL. The goal of this project is to recognize chess movements from images of handwritten scoresheets. We experimented with different models, including a CNN-BiLSTM-MLTU and HTR-Net architectures, and fine-tuned a pre-trained model (TrOCR) on our dataset.
+
+<img src="images/task.png" alt="alt text" width="250"/>
 
 ## Datasets
 
