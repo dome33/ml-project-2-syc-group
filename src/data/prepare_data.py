@@ -10,14 +10,19 @@ CHESS_READER_SPLIT = 0.5
 ONLINE_SPLIT = 0.95
 CUSTOM_SPLIT = 0.95 
 
-
 # Paths to datasets
 chess_reader_data_path = "data/chess_reader_dataset"
 online_data_path = "data/online_dataset"
 custom_data_path = "data/custom_dataset"
 
-# Function to load images and labels
+
 def load_images_labels(path):
+    """
+    Load images and labels from the given path.
+
+    :param path: str, the path to the dataset
+    :return: list of tuples, each tuple contains the path to the image and its label
+    """
     
     df = pd.read_csv(path + "/labels.txt", delimiter=',')
     

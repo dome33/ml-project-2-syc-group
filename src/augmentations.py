@@ -18,13 +18,13 @@ class RandomRotateFillWithMedian(RandomRotate):
             image (Image): Adjusted image
             annotation (typing.Any): Adjusted annotation
         """
-        # check if angle is list of angles or a single angle value
+        # Check if angle is list of angles or a single angle value
         if isinstance(self._angle, list):
             angle = float(np.random.choice(self._angle))
         else:
             angle = float(np.random.uniform(-self._angle, self._angle))
 
-        # generate random border color 
+        # Generate random border color 
         borderValue = np.median(image.numpy(), axis=(0, 1)).tolist()
         borderValue = [int(v) for v in borderValue]
 
@@ -32,7 +32,7 @@ class RandomRotateFillWithMedian(RandomRotate):
 
         if self._augment_annotation:
             if isinstance(annotation, Image):
-                # perform the actual rotation and return the annotation image
+                # Perform the actual rotation and return the annotation image
                 annotation_image = self.rotate_image(annotation.numpy(), angle, borderValue=(0, 0, 0))
                 annotation.update(annotation_image)
             elif isinstance(annotation, Detections):

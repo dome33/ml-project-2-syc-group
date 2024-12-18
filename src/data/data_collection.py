@@ -15,40 +15,42 @@ def get_box_positions(img)-> list[tuple[int, int, int, int]]:
     :return: list of tuples, the positions of the boxes in the image
     """
     
+    # Values are hardcoded based on the CHESS.COM scoresheet layout
     x , y , w , h = 320, 628, 363, 80
     
     rects = [] 
+    # We extract the first 25 boxes for the white player
     for i in range(0, 25): 
         new_x = x 
         new_y = y + i * h
-        # new_y = y + i * (h-1)
         rects.append((new_x, new_y, w, h))
         
+    # We extract the first 25 boxes for the black player
     for i in range(0, 25): 
         new_x = x + w 
         new_y = y + i * h
-        # new_y = y + i * (h-1)
         rects.append((new_x, new_y, w, h))
         
-    # sort the rects 
+    # Sort the rects by y and then x
     rects = sorted(rects, key=lambda x: (x[1],x[0])) 
 
     right_rects = [] 
+    # We extract the next 25 boxes for the white player
     for i in range(0, 25): 
         new_x = x + 2 * w + 100  
         new_y = y + i * h
-        # new_y = y + i * (h-1)
         right_rects.append((new_x, new_y, w, h))
 
+    # We extract the next 25 boxes for the black player
     for i in range(0, 25): 
         new_x = x + 3 * w + 100
         new_y = y + i * h
-        # new_y = y + i * (h-1)
         right_rects.append((new_x, new_y, w, h))
     right_rects = sorted(right_rects, key=lambda x: (x[1],x[0])) 
 
     rects.extend(right_rects) 
     return rects 
+
 
 def extract_moves_from_image(img_path:str)->list[np.ndarray]: 
     """
@@ -59,8 +61,11 @@ def extract_moves_from_image(img_path:str)->list[np.ndarray]:
     """
     img = cv2.imread(img_path) 
 
+    # Get the positions of the boxes in the image
     rects = get_box_positions(img) 
+
     moves = [] 
+    # Extract the box from the image
     for i, rect in enumerate(rects): 
         x, y, w, h = rect 
         crop = img[y:y+h, x:x+w]
@@ -76,6 +81,8 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: in
     :param dataset_path: str, the path to the 'custom_dataset' folder
     :param max_folders: int, the maximum number of data folders to process. Processes all if None.
     """
+
+    # Get all game folders in the dataset
     game_folders = [f for f in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, f))]
     game_folders = sorted(game_folders)  # Ensure consistent processing order
     
@@ -92,7 +99,6 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: in
         # Find all PNG files in the folder
         png_files = [os.path.join(game_folder_path, f) for f in os.listdir(game_folder_path) if f.startswith("game")]
         moves_file_path = os.path.join(game_folder_path, "moves_san.txt")
-        
         
         if not png_files or not os.path.exists(moves_file_path):
             print(f"Missing required files in {game_folder_path}. Skipping...")
@@ -136,7 +142,6 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: in
                 # Add the box-to-move mapping to the list in the required format
                 all_box_to_move.append(f"{relatitve_box_img_path},{moves[move_index]}")
                 move_index += 1
-                
 
     # Write all box-to-move mappings to a single text file in the dataset directory
     output_txt_path = os.path.join(dataset_path, "labels.txt")
@@ -150,7 +155,6 @@ def process_chess_dataset(dataset_path: str, max_folders: int = None, offset: in
     except Exception as e:
         print(f"Error writing output file: {e}")
 
-
    
 def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path):
     """
@@ -160,6 +164,7 @@ def extract_game_moves_san_frompgn(game_idx, destination_path, pgns_dataset_path
     :param destination_path: str, the directory to save the moves
     :param pgns_dataset_path: str, the path to the PGN file
     """
+    
     with open(pgns_dataset_path) as pgn_file:
         # Locate the desired game
         for _ in range(int(game_idx) + 1):  # Skip to the game index

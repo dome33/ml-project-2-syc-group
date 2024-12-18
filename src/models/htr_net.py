@@ -77,6 +77,7 @@ class CNN(nn.Module):
 
         return y
 
+
 def weight_init(m):
     if isinstance(m, nn.Conv2d):
         nn.init.xavier_normal_(m.weight.data)
@@ -122,6 +123,7 @@ class CTCtopR(nn.Module):
 
         return y
 
+
 class CTCtopB(nn.Module):
     def __init__(self, input_size, rnn_cfg, nclasses, rnn_type='gru'):
         super(CTCtopB, self).__init__()
@@ -162,7 +164,6 @@ class HTRNet(nn.Module):
         self.device = device 
         if arch_cfg.stn: 
             raise NotImplementedError('Spatial Transformer Networks not implemented - you can easily build your own!')
-            #self.stn = STN()
         else:
             self.stn = None
 

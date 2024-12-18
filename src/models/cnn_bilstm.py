@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# credits to : https://github.com/pythonlessons/mltu/blob/main/Tutorials/08_handwriting_recognition_torch/model.py
+# Credits to : https://github.com/pythonlessons/mltu/blob/main/Tutorials/08_handwriting_recognition_torch/model.py
 def activation_layer(activation: str="relu", alpha: float=0.1, inplace: bool=True):
     """ Activation layer wrapper for LeakyReLU and ReLU activation functions
 
@@ -63,6 +63,7 @@ class ResidualBlock(nn.Module):
         
         return out
 
+
 class CNNBILSTM(nn.Module):
     """ Handwriting recognition network for CTC loss"""
     def __init__(self, num_chars: int, activation: str="leaky_relu", dropout: float=0.2):
@@ -87,22 +88,15 @@ class CNNBILSTM(nn.Module):
         self.output = nn.Linear(256, num_chars + 1)
 
     def forward(self, images: torch.Tensor) -> torch.Tensor:
-        # normalize images between 0 and 1
-        
+        # Normalize images between 0 and 1
         images_flaot = images / 255.0
 
-        # NOTE images are in format # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
-        # so we need to transpose. 
+        # NOTE images are in format # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) so we need to transpose. 
         
-        # transpose image to channel first
+        # Transpose image to channel first
         images_flaot = images_flaot.permute(0, 3, 1, 2)
         
-        # import matplotlib.pyplot as plt 
-        # # show rgb (3,h,w) image
-        # plt.imshow(images_flaot[0].permute(1,2,0).cpu().numpy())
-        # plt.show()
-        
-        # apply convolutions
+        # Apply convolutions
         x = self.rb1(images_flaot)
         x = self.rb2(x)
         x = self.rb3(x)

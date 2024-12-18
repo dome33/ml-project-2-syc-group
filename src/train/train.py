@@ -21,6 +21,7 @@ import numpy as np
 from types import SimpleNamespace 
 from src.models.htr_net import HTRNet
 
+
 possible_models = ["cnn_bilstm", "htr_net", "htr_vit"] 
 
 # LOAD CONFIGS 
@@ -41,7 +42,7 @@ val_dataset = np.load("data/valset.npy")
 val_dataset = [(name, label) for name, label in val_dataset]
 
 
-# get the vocabulary 
+# Get the vocabulary 
 vocab = [c for _,label in train_dataset for c in label] 
 vocab = list(set(vocab)) 
 vocab.sort() 
@@ -52,6 +53,7 @@ max_len = max([len(label) for _,label in train_dataset])
 configs.vocab = "".join(sorted(vocab))
 configs.max_text_length = max_len
 print(f"Len of train dataset: {len(train_dataset)}") 
+
 
 # Create a data provider for the dataset
 train_dataProvider = DataProvider(
@@ -67,6 +69,7 @@ train_dataProvider = DataProvider(
         ],
     use_cache=True,
 )
+
 val_dataProvider = DataProvider(
     dataset = val_dataset,
     skip_validation=train_dataProvider._skip_validation,
@@ -89,7 +92,6 @@ train_dataProvider.augmentors = [
 # Create our model 
 # NOTE to test another model architecture. add a filed "model" to the configs file 
 # and add if-else logic here to create the model specified in the configs file.
-
 model2network = {
     "cnn_bilstm": CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3),
     "htr_net": HTRNet(len(configs.vocab)+1, configs.device), 
@@ -100,11 +102,10 @@ network = model2network[configs.model]
 loss = CTCLossShortcut(blank=len(configs.vocab)) 
 optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
 
-# put on cuda device if available
+# Put on cuda device if available
 network = network.to(configs.device)
 
-# create callbacks
-# used to track important metrics. 
+# Create callbacks used to track important metrics. 
 earlyStopping = EarlyStopping(monitor="val_CER", patience=20, mode="min", verbose=1)
 modelCheckpoint = ModelCheckpoint(configs.model_path + "/model.pt", monitor="val_CER", mode="min", save_best_only=True, verbose=1)
 tb_callback = TensorBoard(configs.model_path + "/logs")
@@ -117,7 +118,7 @@ model2onnx = Model2onnx(
 )
 
 
-# create model object that will handle training and testing of the network
+# Create model object that will handle training and testing of the network
 # NOTE : FOR REASONS I DONT KNOW (YET), DATA IS PASSED TO THE MODEL WITH SHAPE 
 # (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
 

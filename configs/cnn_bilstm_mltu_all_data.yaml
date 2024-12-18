@@ -1,6 +1,6 @@
-model_path : "results/cnn_bilstm_entire_dataset_double"
-height : 128
-width : 512
+model_path : "results/cnn_bilstm_mltu_all_data"
+height : 64
+width : 256
 batch_size : 64
 learning_rate : 0.002
 train_epochs : 1000
