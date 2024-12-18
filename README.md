@@ -86,9 +86,6 @@ In this section, we present the results of our experiments and explain how to re
     python src/data/prepare_data.py --size_custom 0
     ```
 
-
-    ### Table for CER
-
     | **Custom Dataset**      | **WITHOUT Val** | **WITHOUT Test** | **WITH Val** | **WITH Test** |
     |--------------------------|-----------------|------------------|--------------|---------------|
     | **CNN-BiLSTM-MLTU**     | 0.1581          | **0.3559**       | 0.0948       | **0.1761**    |
@@ -98,7 +95,6 @@ In this section, we present the results of our experiments and explain how to re
 
     ---
 
-    ### Table for WER
 
     | **Custom Dataset**      | **WITHOUT Val** | **WITHOUT Test** | **WITH Val** | **WITH Test** |
     |--------------------------|-----------------|------------------|--------------|---------------|
@@ -106,7 +102,7 @@ In this section, we present the results of our experiments and explain how to re
     | **HTR-Net**             | **0.29**        | 0.6073           | 0.2004       | 0.3846        |
 
     *Table 2: Model performance in terms of **WER**.*
-    
+
 
 - **Fine tuned model** The results of the fine tuned model are the following, we generate them in the `notebooks/interpret_finetuned.ipynb` notebook. 
     | Metric | Validation Set | Test Set |
