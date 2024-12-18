@@ -70,9 +70,6 @@ class ResNet18(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        #x = x / 255.0
-        #x = x.permute(0, 3, 1, 2)
-
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -84,7 +81,3 @@ class ResNet18(nn.Module):
         x = self.maxpool(x)
         
         return x
-
-
-
-
