@@ -5,6 +5,7 @@ This repository contains the code for the project of the course CS-433 Machine L
 <div style="text-align: center;">
   <img src="images/task.png" alt="alt text" width="350"/>
 </div>
+
 ## Datasets
 
 We used two existing datasets to train and test our model:
