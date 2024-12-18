@@ -7,5 +7,4 @@ train_epochs : 1000
 device : "mps" 
 model: "htr_net"
 
-
 # 5k data 
