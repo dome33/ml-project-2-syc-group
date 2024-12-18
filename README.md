@@ -33,12 +33,15 @@ In addition, we created our own dataset by handwritting publicly available chess
 ```
 
 ## Data
-* The content of `2023 11 Export ChessReader Data` found in the drive provided by the professor should be placed in the `data/raw/chess_reader_dataset` folder. 
-* The content of `HCS Dataset December 2021/extracted move boxes` (downloadable https://sites.google.com/view/chess-scoresheet-dataset/home/) should be placed in `datra/raw/hcs_dataset` folder. 
+* The content of `2023 11 Export ChessReader Data` found in the drive provided by the professor should be placed in the `data/raw/chess_reader_data` folder. 
+* The content of `HCS Dataset December 2021/extracted move boxes` (downloadable https://sites.google.com/view/chess-scoresheet-dataset/home/) should be placed in `data/raw/hcs_dataset` folder.
+
+More informations on the scripts to process the data can be found in the [dedicated README.md](https://github.com/CS-433/ml-project-2-syc-group/blob/main/src/data/README.md)
 
 To generate the full training and test sets, run the following commands: 
-```bash 
-python src/data/extract_from_raw.py
+```bash
+python src/data/existing_datasets.py
+python src/data/custom_dataset.py --process --destination_path ./data/custom_dataset
 python src/data/prepare_data.py
 ```
 
@@ -53,55 +56,9 @@ python src/train/train.py --config configs/cnn_bilstm_mltu_default.yaml
 ```
 
 # Dependencies 
-Install mltu with 
+
+Install the requirements using the following command:
+
 ```bash
-pip install mltu
+pip install -r requirements.txt
 ``` 
-
-# SCITAS
-
-## Connection to ssh
-
-```
-$ ssh USERNAME@izar.epfl.ch
-```
-
-Where USERNAME is the Gaspar account
-
-## Uploading files from your computer to the cluster
-
-```
-rsync -azP /path/to/src <USERNAME>@izar.hpc.epfl.ch:/path/to/dest
-```
-
-Better using `rsync` that `scp` as it avoids having to re-upload a whole folder if you have only one of the files it contains that changes. This way only the changed file gets updated.
-
-## Script 
-
-```bash
-#!/bin/bash
-#SBATCH --qos=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=0:30:00
-#SBATCH --mem=8G
-
-module load python
-python test_script.py
-```
-
-## Running a job
-
-```
-$ sbatch FILE_NAME.run
-```
-
-Where file name is the .run file as above
-If the job has been successfully uploaded you should be getting a job id for it.
-
-## Useful stuff
-
-To see whether the state of the jobs submitted you can use the `squeue` command.
-Once the job is completed there will be a new file generated with a name like SLURM-<jobid>
