@@ -2,9 +2,9 @@
 # Machine Learning for Chess Movement Recognition
 
 This repository contains the code for the project of the course CS-433 Machine Learning at EPFL. The goal of this project is to recognize chess movements from images of handwritten scoresheets. We experimented with different models, including a CNN-BiLSTM-MLTU and HTR-Net architectures, and fine-tuned a pre-trained model (TrOCR) on our dataset.
-<center>
-<img src="images/task.png" alt="alt text" width="350"/>
-</center>
+<div style="text-align: center;">
+  <img src="images/task.png" alt="alt text" width="350"/>
+</div>
 ## Datasets
 
 We used two existing datasets to train and test our model:
