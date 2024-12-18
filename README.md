@@ -30,7 +30,7 @@ python src/data/custom_dataset.py --process --destination_path ./data/custom_dat
 python src/data/prepare_data.py
 ```
 
-Note: When we experiment the outcome of a training without our dataset, we set the argument `size_custom` to 0
+Note: When we experiment the outcome of a training without our dataset, we set the argument `size_custom` to 0.
 The command becomes:
 
 ```bash
