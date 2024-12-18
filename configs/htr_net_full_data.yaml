@@ -1,0 +1,10 @@
+model_path : "results/htr_full_data"
+height : 64
+width : 256 
+batch_size : 64
+learning_rate : 0.001
+train_epochs : 1000 
+device : "cuda" 
+model: "htr_net"
+
+
