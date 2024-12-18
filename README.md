@@ -23,7 +23,7 @@ In addition, we created our own dataset by handwritting publicly available chess
 
 More informations on the scripts to process the data can be found in the [dedicated README.md](https://github.com/CS-433/ml-project-2-syc-group/blob/main/src/data/README.md)
 
-To generate the full training and test sets, run the following commands: 
+To generate the full training and test sets, run the following commands from the root of the project: 
 ```bash
 python src/data/existing_datasets.py
 python src/data/custom_dataset.py --process --destination_path ./data/custom_dataset
