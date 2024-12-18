@@ -45,7 +45,7 @@ python src/data/prepare_data.py
 ## Training
 
 Each experiment (model training) should be represented by a config (`.yaml`) file in `configs` folder. 
-Its results will be saved in the folder specified in the config file(usually in the `results` folder). 
+The results will be saved in the folder specified in the config file (usually in the `results` folder). 
 
 To train a model, run the following command: 
 ```bash
