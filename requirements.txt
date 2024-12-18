@@ -1,4 +1,7 @@
 chess
+datasets
+evaluate
+jiwer
 matplotlib
 mltu
 numpy==1.26.4
@@ -8,6 +11,7 @@ PyYAML
 torch==2.2.0
 torchsummaryX
 tqdm
+transformers
 onnx
 tensorboard
 timm 

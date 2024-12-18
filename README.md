@@ -6,8 +6,13 @@ We used two existing datasets to train and test our model:
 - [Handwritten Chess Scoresheet Dataset (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) from Owen Eicher
 - [Chess Reader Public Ressources](https://www.dropbox.com/scl/fo/mfoclmkggrnv0u8wufck8/h?rlkey=v0prueklq3mqsav823voin5yi&e=3&dl=0) from spinningbytes GitHub organization
 
-In addition, we created our own dataset by handwritting publicly available chess games, and then scanning them. These data can be found in the `data/custom_dataset` folder. Each game has its separare folder denoted by `game<game_id>` which contains a `moves_san.txt` file and a scan of the handwritten game (`game<game_id>.png`).
-The `moves_san.txt` files contain the moves played during the game, for both the players.
+In addition, we created our own dataset by handwritting publicly available chess games, and then scanning them. These data can be found in the `data/custom_dataset` folder. Each game has its separare folder denoted by `game<game_id>` with the following structure:
+
+```
+├── game<game_id>
+│   ├── game<game_id>.png     # Scan of the handwritten game                  
+│   ├── moves_san.txt         # The moves played during the game
+```
 
 ## Project structure 
 
@@ -37,10 +42,10 @@ python src/data/extract_from_raw.py
 python src/data/prepare_data.py
 ```
 
-## Training. 
+## Training
 
 Each experiment (model training) should be represented by a config (`.yaml`) file in `configs` folder. 
-Its results will be saved in the folder specified in the config file(usually in the `results` folder). 
+The results will be saved in the folder specified in the config file (usually in the `results` folder). 
 
 To train a model, run the following command: 
 ```bash

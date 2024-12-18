@@ -9,19 +9,40 @@ import pandas as pd
 from tqdm import tqdm
     
 class ImageToWordModel(OnnxInferenceModel):
+    
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the ImageToWordModel by calling the parent class's initializer.
+        The model expects metadata and input-output specifications to handle image-to-text predictions.
+        """
         super().__init__(*args, **kwargs)
 
+
     def predict(self, image: np.ndarray):
+        """
+        Perform text prediction on a given image using the ONNX model.
+
+        Args:
+            image (np.ndarray): Input image array.
+
+        Returns:
+            str: Decoded text prediction.
+        """
+
+        # Resize the image to the model's input shape
         image = cv2.resize(image, self.input_shapes[0][1:3][::-1])
 
+        # Add batch dimension and convert to float32
         image_pred = np.expand_dims(image, axis=0).astype(np.float32)
 
+        # Run the model and get the predictions
         preds = self.model.run(self.output_names, {self.input_names[0]: image_pred})[0]
 
+        # Decode the predictions
         text = ctc_decoder(preds, self.metadata["vocab"])[0]
 
         return text
+
 
 if __name__ == "__main__":
 
