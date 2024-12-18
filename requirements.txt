@@ -8,11 +8,13 @@ numpy==1.26.4
 opencv_python
 pandas
 PyYAML
+tiktoken
 torch==2.2.0
 torchsummaryX
 tqdm
 transformers
 onnx
+sentencepiece
 tensorboard
 tiktoken
 timm 
