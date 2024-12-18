@@ -24,6 +24,7 @@ from src.models.htr_net import HTRNet
 
 possible_models = ["cnn_bilstm", "htr_net", "htr_vit"] 
 
+
 # LOAD CONFIGS 
 parser = ArgumentParser() 
 parser.add_argument("--config", type=str, required=True) 
@@ -90,8 +91,6 @@ train_dataProvider.augmentors = [
 
 
 # Create our model 
-# NOTE to test another model architecture. add a filed "model" to the configs file 
-# and add if-else logic here to create the model specified in the configs file.
 model2network = {
     "cnn_bilstm": CNNBILSTM(len(configs.vocab), activation="leaky_relu", dropout=0.3),
     "htr_net": HTRNet(len(configs.vocab)+1, configs.device), 
@@ -119,9 +118,6 @@ model2onnx = Model2onnx(
 
 
 # Create model object that will handle training and testing of the network
-# NOTE : FOR REASONS I DONT KNOW (YET), DATA IS PASSED TO THE MODEL WITH SHAPE 
-# (BATCH_SIZE, HEIGHT, WIDTH, CHANNELS) 
-
 model = Model(network, optimizer, loss, metrics=[CERMetricShortCut(configs.vocab), WERMetricShortCut(configs.vocab)])
 model.fit(
     train_dataProvider, 

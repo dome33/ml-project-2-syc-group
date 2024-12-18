@@ -2,11 +2,12 @@ from tkinter import Image
 from mltu.augmentors import RandomRotate
 import numpy as np 
 from mltu.annotations.images import Image 
-from mltu.annotations.detections import Detections, Detection, BboxType
+from mltu.annotations.detections import Detections
 import typing
 
 
 class RandomRotateFillWithMedian(RandomRotate): 
+    
     def __call__(self, image: Image, annotation: typing.Any) -> typing.Tuple[Image, typing.Any]:
         """ Randomly rotate image
 
