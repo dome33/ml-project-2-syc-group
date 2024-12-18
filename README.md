@@ -6,8 +6,13 @@ We used two existing datasets to train and test our model:
 - [Handwritten Chess Scoresheet Dataset (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) from Owen Eicher
 - [Chess Reader Public Ressources](https://www.dropbox.com/scl/fo/mfoclmkggrnv0u8wufck8/h?rlkey=v0prueklq3mqsav823voin5yi&e=3&dl=0) from spinningbytes GitHub organization
 
-In addition, we created our own dataset by handwritting publicly available chess games, and then scanning them. These data can be found in the `data/custom_dataset` folder. Each game has its separare folder denoted by `game<game_id>` which contains a `moves_san.txt` file and a scan of the handwritten game (`game<game_id>.png`).
-The `moves_san.txt` files contain the moves played during the game, for both the players.
+In addition, we created our own dataset by handwritting publicly available chess games, and then scanning them. These data can be found in the `data/custom_dataset` folder. Each game has its separare folder denoted by `game<game_id>` with the following structure:
+
+```
+├── game<game_id>
+│   ├── game<game_id>.png     # Scan of the handwritten game                  
+│   ├── moves_san.txt         # The moves played during the game
+```
 
 ## Project structure 
 
