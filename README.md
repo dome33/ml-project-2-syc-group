@@ -2,6 +2,8 @@
 
 # Machine Learning for Chess Movement Recognition
 
+## Datasets
+
 We used two existing datasets to train and test our model:
 - [Handwritten Chess Scoresheet Dataset (HCS)](https://tc11.cvc.uab.es/datasets/HCS_1/) from Owen Eicher
 - [Chess Reader Public Ressources](https://www.dropbox.com/scl/fo/mfoclmkggrnv0u8wufck8/h?rlkey=v0prueklq3mqsav823voin5yi&e=3&dl=0) from spinningbytes GitHub organization
