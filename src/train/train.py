@@ -3,6 +3,8 @@ import torch.optim as optim
 from mltu.torch.model import Model
 from mltu.torch.losses import CTCLoss
 from mltu.torch.dataProvider import DataProvider
+
+
 from src.utils import CERMetricShortCut, CTCLossShortcut, WERMetricShortCut 
 from mltu.torch.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, Model2onnx, ReduceLROnPlateau
 
@@ -12,6 +14,7 @@ from mltu.augmentors import RandomBrightness, RandomRotate, RandomErodeDilate, R
 from mltu.annotations.images import CVImage
 from src.augmentations import RandomRotateFillWithMedian 
 from src.models.cnn_bilstm import CNNBILSTM
+
 
 #from src.models.cnn_bilstm import CNNBILSTM
 from src.models.HTR_VT import MaskedAutoencoderViT, create_model
@@ -34,6 +37,14 @@ configs = SimpleNamespace(**config)
 
 assert configs.model is not None, "Please specify a model architecture in the configs file"
 assert configs.model in possible_models, f"Model {configs.model} not found. Possible models are {possible_models}" 
+
+
+
+
+
+
+
+
 
 
 # LOAD THE DATASET. 

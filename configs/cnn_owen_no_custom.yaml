@@ -1,0 +1,8 @@
+model_path : "results/cnn_owen"
+height : 64
+width : 256
+batch_size : 16
+learning_rate : 0.0005
+train_epochs : 1
+device : "cuda"
+model : "cnn_owen"
