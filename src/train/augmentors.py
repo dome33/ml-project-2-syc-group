@@ -248,7 +248,7 @@ class RandomHorizontalScale(Augmentor):
     def __init__(
         self,
         random_chance: float = 0.5,
-        scale_range: typing.Tuple[float, float] = (0.9, 1.1),
+        scale_range: typing.Tuple[float, float] = (0.8, 1.2),
         borderValue: typing.Union[int, typing.Tuple[int, int, int]] = 255,
         log_level: int = logging.INFO,
         augment_annotation: bool = False,
