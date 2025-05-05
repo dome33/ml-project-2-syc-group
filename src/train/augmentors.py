@@ -165,21 +165,27 @@ class RandomRotate(Augmentor):
         else:
             borderValue = (self._borderValue[0],) if is_gray else self._borderValue
 
-        img, rotMat = self.rotate_image(image.numpy(), angle, borderValue, return_rotation_matrix=True)
+        
+        try:
 
-        if self._augment_annotation:
-            if isinstance(annotation, Image):
-                # perform the actual rotation and return the annotation image
-                annotation_image = self.rotate_image(annotation.numpy(), angle, borderValue=(0, 0, 0))
-                annotation.update(annotation_image)
-            elif isinstance(annotation, Detections):
-                height, width = img.shape[:2]
-                for detection in annotation:
-                    detection.dot(rotMat, width, height)
+            img, rotMat = self.rotate_image(image.numpy(), angle, borderValue, return_rotation_matrix=True)
 
-        image.update(img)
+            if self._augment_annotation:
+                if isinstance(annotation, Image):
+                    # perform the actual rotation and return the annotation image
+                    annotation_image = self.rotate_image(annotation.numpy(), angle, borderValue=(0, 0, 0))
+                    annotation.update(annotation_image)
+                elif isinstance(annotation, Detections):
+                    height, width = img.shape[:2]
+                    for detection in annotation:
+                        detection.dot(rotMat, width, height)
 
-        return image, annotation
+            image.update(img)
+
+            return image, annotation
+        except:
+            print("Exception in rotation image, returning original")
+            return image, annotation
 
 
 class RandomHorizontalShear(Augmentor):
@@ -232,14 +238,20 @@ class RandomHorizontalShear(Augmentor):
         if isinstance(self.borderValue, int) or isinstance(self.borderValue, tuple):
             border_value = self.borderValue
 
-        sheared_img = self.shear_image(img_array, shear_factor, border_value)
+        try:
 
-        if self._augment_annotation and isinstance(annotation, Image):
-            sheared_annotation = self.shear_image(annotation.numpy(), shear_factor, 0)
-            annotation.update(sheared_annotation)
+            sheared_img = self.shear_image(img_array, shear_factor, border_value)
 
-        image.update(sheared_img)
-        return image, annotation
+            if self._augment_annotation and isinstance(annotation, Image):
+                sheared_annotation = self.shear_image(annotation.numpy(), shear_factor, 0)
+                annotation.update(sheared_annotation)
+
+            image.update(sheared_img)
+            return image, annotation
+        
+        except:
+            print("Exception in shear image, returning original")
+            return image, annotation
 
 
 class RandomHorizontalScale(Augmentor):
@@ -295,12 +307,18 @@ class RandomHorizontalScale(Augmentor):
 
         border_value = self.borderValue if is_gray or isinstance(self.borderValue, int) else self.borderValue
 
-        scaled_img = self.scale_image(img_array, scale_factor, border_value)
+        try:
+            scaled_img = self.scale_image(img_array, scale_factor, border_value)
 
-        image.update(scaled_img)
+            image.update(scaled_img)
 
-        if self._augment_annotation and isinstance(annotation, Image):
-            scaled_ann = self.scale_image(annotation.numpy(), scale_factor, 0)
-            annotation.update(scaled_ann)
+            if self._augment_annotation and isinstance(annotation, Image):
+                scaled_ann = self.scale_image(annotation.numpy(), scale_factor, 0)
+                annotation.update(scaled_ann)
 
-        return image, annotation
+            return image, annotation
+        except:
+            print("Exception in scale image, returning original")
+            return image, annotation
+
+        

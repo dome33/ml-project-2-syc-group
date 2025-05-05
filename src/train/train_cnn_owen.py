@@ -1,6 +1,6 @@
 import os
 
-import cv2
+
 import torch.optim as optim
 from mltu.torch.model import Model
 from mltu.torch.losses import CTCLoss
@@ -20,10 +20,11 @@ from mltu.transformers import ImageResizer,  ImageShowCV2, ImageNormalizer
 
 from src.train.transformers import LabelIndexer, LabelPadding
 
-from src.train.augmentors import RandomBrightness, RandomRotate
+from src.train.augmentors import RandomBrightness, RandomRotate, RandomHorizontalScale, RandomHorizontalShear
 from mltu.annotations.images import CVImage
 
 from src.models.cnn_owen import HandwritingRecognitionCNN_BiLSTM
+from src.train.callbacks import WandbLogger
 
 
 from argparse import ArgumentParser
@@ -32,9 +33,6 @@ import numpy as np
 from types import SimpleNamespace
 
 
-from src.train.iamwordsdataset import IAMWordsDataset
-
-from src.train.iamtransform import transform
 
 possible_models = ["cnn_owen"]
 
@@ -62,9 +60,9 @@ assert configs.model in possible_models, f"Model {configs.model} not found. Poss
 
 
 # LOAD THE DATASET. 
-train_dataset = np.load("data/trainset.npy")
+train_dataset = np.load("data/trainset_iam.npy")
 train_dataset = [(name, label) for name, label in train_dataset]
-val_dataset = np.load("data/valset.npy")
+val_dataset = np.load("data/valset_iam.npy")
 val_dataset = [(name, label) for name, label in val_dataset]
 
 # Get the vocabulary
@@ -92,7 +90,7 @@ train_dataProvider = DataProvider(
         LabelIndexer(configs.vocab),
         LabelPadding(max_word_length=configs.max_text_length, padding_value=len(configs.vocab))
     ],
-    use_cache=True,
+    use_cache=False,
 )
 
 val_dataProvider = DataProvider(
@@ -104,8 +102,6 @@ val_dataProvider = DataProvider(
     use_cache=train_dataProvider._use_cache,
 )
 
-
-
 #for step, (data, target) in enumerate(val_dataProvider, start=1):
 #    targets.append(target)
 
@@ -114,8 +110,9 @@ val_dataProvider = DataProvider(
 # RandomSharpen()
 # Augment training data with random brightness, rotation and erode/dilate
 train_dataProvider.augmentors = [
-    RandomBrightness(random_chance=0.3),
-    RandomRotate(random_chance=0.3, angle=10)
+    RandomRotate(random_chance=0.3, angle=10),
+    RandomHorizontalScale(random_chance=0.3),
+    RandomHorizontalShear(random_chance=0.3, max_shear_factor=0.3)
 ]
 
 num_classes = 81
@@ -137,7 +134,7 @@ optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
 # Put on cuda device if available
 network = network.to(configs.device)
 
-network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
+#network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
 
 # Create callbacks used to track important metrics. 
 earlyStopping = EarlyStopping(monitor="val_CER", patience=20, mode="min", verbose=1)
@@ -148,9 +145,14 @@ modelCheckpoint = ModelCheckpoint(
     save_best_only=True,
     verbose=1)
 
-tb_callback = TensorBoard(configs.model_path + "/logs")
+wandbLogger = WandbLogger(
+    project="falconet-pretraining",
+    name="onehundred-epoch",
+    config={"epochs": configs.train_epochs, "batch_size": configs.batch_size, "learning_rate": configs.learning_rate},
+    log_model=False
+)
 
-reduce_lr = ReduceLROnPlateau(monitor="val_CER", factor=0.9, patience=10, verbose=1, mode="min", min_lr=1e-6)
+reduce_lr = ReduceLROnPlateau(monitor="val_CER", factor=0.8, patience=5, verbose=1, mode="min", min_lr=1e-6)
 
 model2onnx = Model2onnx(
     saved_model_path=configs.model_path + "/model.pt",
@@ -167,9 +169,9 @@ model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMe
 model.fit(
     train_dataProvider,
     val_dataProvider,
-    epochs=9,
+    epochs=configs.train_epochs,
     initial_epoch=1,
-    callbacks=[earlyStopping, modelCheckpoint, tb_callback, reduce_lr, model2onnx]
+    callbacks=[earlyStopping, modelCheckpoint, reduce_lr, wandbLogger]
 )
 
 # Save training and validation datasets as csv files

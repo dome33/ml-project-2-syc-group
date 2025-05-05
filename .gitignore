@@ -2,3 +2,5 @@ data/
 logs
 results/falconet/model_017340.pt
 results/falconet/model.pt
+venv
+wandb

@@ -33,9 +33,6 @@ import numpy as np
 from types import SimpleNamespace
 
 
-from src.train.iamwordsdataset import IAMWordsDataset
-
-from src.train.iamtransform import transform
 
 possible_models = ["cnn_owen"]
 
@@ -115,9 +112,9 @@ val_dataProvider = DataProvider(
 # RandomSharpen()
 # Augment training data with random brightness, rotation and erode/dilate
 train_dataProvider.augmentors = [
-    RandomRotate(random_chance=0.3, angle=10),
-    RandomHorizontalShear(random_chance=0.3, max_shear_factor=0.3),
-    RandomHorizontalScale(random_chance=0.3)
+    RandomRotate(random_chance=0.4, angle=10),
+    RandomHorizontalScale(random_chance=0.4),
+    RandomHorizontalShear(random_chance=0.4, max_shear_factor=0.3)
 ]
 
 num_classes = 30
@@ -130,6 +127,7 @@ model2network = {
 
 network = model2network[configs.model]
 
+"""
 
 # new model state dict
 model_dict = network.state_dict()
@@ -151,7 +149,10 @@ model_dict.update(filtered_dict)
 network.load_state_dict(model_dict)
 
 
-#network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
+"""
+
+
+network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
 
 nw_params = network.parameters()
 
@@ -177,7 +178,7 @@ blank = len(configs.vocab)
 loss = CTCLoss(blank=blank, zero_infinity=True)
 
 # Create callbacks used to track important metrics. 
-earlyStopping = EarlyStopping(monitor="val_CER", patience=20, mode="min", verbose=1)
+earlyStopping = EarlyStopping(monitor="val_CER", patience=30, mode="min", verbose=1)
 
 modelCheckpoint = ModelCheckpoint(
     configs.model_path + "/model.pt", monitor="val_CER",
@@ -187,7 +188,7 @@ modelCheckpoint = ModelCheckpoint(
 
 #tb_callback = TensorBoard(configs.model_path + "/logs")
 
-reduce_lr = ReduceLROnPlateau(monitor="val_CER", factor=0.9, patience=10, verbose=1, mode="min", min_lr=1e-6)
+reduce_lr = ReduceLROnPlateau(monitor="val_CER", factor=0.9, patience=20, verbose=1, mode="min", min_lr=1e-6)
 
 model2onnx = Model2onnx(
     saved_model_path=configs.model_path + "/model.pt",
@@ -197,9 +198,9 @@ model2onnx = Model2onnx(
 )
 
 wandbLogger = WandbLogger(
-    project="falconet-training",
-    name="first-epoch",
-    config={"epochs": 1, "batch_size": configs.batch_size, "learning_rate": configs.learning_rate},
+    project="falconet-new-pretraining",
+    name="hundred-seventy",
+    config={"epochs": configs.train_epochs, "batch_size": configs.batch_size, "learning_rate": configs.learning_rate},
     log_model=False
 )
 
@@ -211,9 +212,9 @@ model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMe
 model.fit(
     train_dataProvider,
     val_dataProvider,
-    initial_epoch=1,
-    epochs=1,
-    callbacks=[earlyStopping, modelCheckpoint, wandbLogger, reduce_lr, model2onnx]
+    initial_epoch=176,
+    epochs=configs.train_epochs,
+    callbacks=[ modelCheckpoint, wandbLogger, reduce_lr]
 )
 
 # Save training and validation datasets as csv files
