@@ -21,10 +21,11 @@ from mltu.transformers import ImageResizer,  ImageShowCV2, ImageNormalizer
 from src.train.transformers import LabelIndexer, LabelPadding
 from src.train.callbacks import WandbLogger
 
-#from src.train.augmentors import RandomBrightness, RandomRotate, RandomHorizontalScale, RandomHorizontalShear
+from src.train.augmentors import RandomBrightness, RandomRotate, RandomHorizontalScale, RandomHorizontalShear
 from mltu.annotations.images import CVImage
 
 from src.models.cnn_owen import HandwritingRecognitionCNN_BiLSTM
+
 
 from argparse import ArgumentParser
 import yaml
@@ -33,7 +34,7 @@ from types import SimpleNamespace
 
 
 
-possible_models = ["cnn_owen"]
+possible_models = ["hugo"]
 
 # LOAD CONFIGS
 parser = ArgumentParser()
@@ -59,9 +60,9 @@ assert configs.model in possible_models, f"Model {configs.model} not found. Poss
 
 
 # LOAD THE DATASET.
-train_dataset = np.load("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_trainset.npy")
+train_dataset = np.load("data/trainset.npy")
 train_dataset = [(name, label) for name, label in train_dataset]
-val_dataset = np.load("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_valset.npy")
+val_dataset = np.load("data/valset.npy")
 val_dataset = [(name, label) for name, label in val_dataset]
 
 # Get the vocabulary
@@ -110,28 +111,28 @@ val_dataProvider = DataProvider(
 #  RandomBrightness(),
 # RandomSharpen()
 # Augment training data with random brightness, rotation and erode/dilate
-# train_dataProvider.augmentors = [
-#     RandomRotate(random_chance=0.4, angle=10),
-#     RandomHorizontalScale(random_chance=0.4),
-#     RandomHorizontalShear(random_chance=0.4, max_shear_factor=0.3)
-# ]
+train_dataProvider.augmentors = [
+    RandomRotate(random_chance=0.4, angle=10),
+    RandomHorizontalScale(random_chance=0.4),
+    RandomHorizontalShear(random_chance=0.4, max_shear_factor=0.3)
+]
 
 num_classes = 30
 hidden_size = 64
 
 # Create our model
 model2network = {
-    "cnn_owen": HandwritingRecognitionCNN_BiLSTM(num_classes=num_classes, hidden_size=hidden_size)
+    "hugo": HandwritingRecognitionCNN_BiLSTM(num_classes=num_classes, hidden_size=hidden_size)
 }
 
 network = model2network[configs.model]
 
-"""
+
 
 # new model state dict
 model_dict = network.state_dict()
 
-model_path = "results/cnn_owen"
+model_path = "results/hugo"
 
 pretrained_dict = torch.load(model_path + "/model.pt")
 
@@ -148,26 +149,24 @@ model_dict.update(filtered_dict)
 network.load_state_dict(model_dict)
 
 
-"""
-
 
 #network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
 
-# nw_params = network.parameters()
-#
-# # Freeze all parameters
-# for param in nw_params:
-#     param.requires_grad = False
-#
-# # Unfreeze lstm layer
-# for param in network.lstm.parameters():
-#     param.requires_grad = True
-#
-# # Unfreeze only the final dense layer
-# for param in network.fc.parameters():
-#     param.requires_grad = True
+nw_params = network.parameters()
 
-optimizer = optim.Adam(network.parameters(), lr=configs.learning_rate)
+# Freeze all parameters
+for param in nw_params:
+    param.requires_grad = False
+
+# Unfreeze lstm layer
+for param in network.lstm.parameters():
+    param.requires_grad = True
+
+# Unfreeze only the final dense layer
+for param in network.fc.parameters():
+    param.requires_grad = True
+
+optimizer = optim.Adam(filter(lambda p: p.requires_grad, network.parameters()), lr=configs.learning_rate)
 
 # Put on cuda device if available
 network = network.to(configs.device)

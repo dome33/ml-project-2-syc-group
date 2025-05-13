@@ -15,7 +15,7 @@ def load_dataset_from_folder(folder_path):
                 dataset.append((img_path, label))
     return dataset
 
-data_folder = "C:\\Users\marti\Documents\BA\cr_api\ml-project-2-syc-group\data\synth"
+data_folder = "/home/ubuntu/model/ml-project-2-syc-group/data/synth/data"
 dataset = load_dataset_from_folder(data_folder)
 
 # Sanity check
@@ -26,5 +26,5 @@ print("Example:", dataset[0])
 train_data, val_data = train_test_split(dataset, test_size=0.1, random_state=42)
 
 # Save
-np.save("C:\\Users\marti\Documents\BA\cr_api\ml-project-2-syc-group\src\data\synth_trainset.npy", train_data)
-np.save("C:\\Users\marti\Documents\BA\cr_api\ml-project-2-syc-group\src\data\synth_valset.npy", val_data)
+np.save("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_trainset.npy", train_data)
+np.save("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_valset.npy", val_data)
