@@ -8,7 +8,9 @@ dummy_input = torch.randn(1, 64, 256)  # Example for an image model
 num_classes = 30
 hidden_size = 64
 
-model_path = "results/falconet/model_0_14870.pt"
+model_name = "hugo28"
+
+model_path = f"C:/Users/marti/Documents/BA/ml-project-2-syc-group/results/{model_name}/model.pt"
 
 model = HandwritingRecognitionCNN_BiLSTM(num_classes=num_classes, hidden_size=hidden_size)
 model.load_state_dict(torch.load(model_path, map_location=device))
@@ -17,7 +19,7 @@ model.eval()
 torch.onnx.export(
     model,                      # Your PyTorch model
     dummy_input,                # Example input
-    "falconet_model.onnx",               # Output file name
+    f"C:/Users/marti/Documents/BA/ml-project-2-syc-group/results/{model_name}/{model_name}.onnx",               # Output file name
     export_params=True,         # Store the trained weights
     opset_version=11,           # ONNX version (11 is widely supported)
     do_constant_folding=True,   # Optimize constant expressions

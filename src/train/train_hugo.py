@@ -59,9 +59,9 @@ assert configs.model in possible_models, f"Model {configs.model} not found. Poss
 
 
 # LOAD THE DATASET.
-train_dataset = np.load("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_trainset.npy")
+train_dataset = np.load("C:\\Users\marti\Documents\BA\ml-project-2-syc-group\data\synth_trainset.npy", allow_pickle=True)
 train_dataset = [(name, label) for name, label in train_dataset]
-val_dataset = np.load("/home/ubuntu/model/ml-project-2-syc-group/src/data/synth_valset.npy")
+val_dataset = np.load("C:\\Users\marti\Documents\BA\ml-project-2-syc-group\data\synth_valset.npy", allow_pickle=True)
 val_dataset = [(name, label) for name, label in val_dataset]
 
 # Get the vocabulary
@@ -151,7 +151,7 @@ network.load_state_dict(model_dict)
 """
 
 
-#network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
+network.load_state_dict(torch.load(configs.model_path + "/model.pt"))
 
 # nw_params = network.parameters()
 #
@@ -211,7 +211,7 @@ model = Model(network, optimizer, loss, metrics=[CERMetric(configs.vocab), WERMe
 model.fit(
     train_dataProvider,
     val_dataProvider,
-    #initial_epoch=176,
+    initial_epoch=30,
     epochs=configs.train_epochs,
     callbacks=[ modelCheckpoint, wandbLogger, reduce_lr]
 )
