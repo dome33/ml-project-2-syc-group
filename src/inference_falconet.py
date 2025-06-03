@@ -18,7 +18,7 @@ from mltu.inferenceModel import OnnxInferenceModel
 from mltu.annotations.images import CVImage
 from models.cnn_owen import HandwritingRecognitionCNN_BiLSTM
 
-from mltu.utils.text_utils import ctc_decoder, get_cer
+from mltu.utils.text_utils import ctc_decoder, get_cer, get_wer
 
 
 import pandas as pd
@@ -147,6 +147,11 @@ if __name__ == "__main__":
 
     # Save vocab and maximum text length to configs
     vocab = "".join(sorted(vocab))
+
+    
+    # '#+-12345678=BKNOPQRabcdefghx'
+
+    print(vocab)
     
     model_path = "results/falconet/falconet_model.onnx"
     
@@ -166,14 +171,18 @@ if __name__ == "__main__":
     )
 
     accum_cer = []
+    accum_wer = []
 
     for batch in tqdm(val_dataProvider):
         image, label = batch[0][0], batch[1][0]  # Get image and text label
 
         prediction_text = model.predict(image)
         cer = get_cer(prediction_text, label)
+        wer = get_wer(prediction_text, label)
 
-        print(f"Prediction: {prediction_text}, Label: {label}, CER: {cer}")
+        print(f"Prediction: {prediction_text}, Label: {label}, CER: {cer}, WER {wer}")
         accum_cer.append(cer)
+        accum_wer.append(wer)
 
     print(f"Average CER: {np.average(accum_cer)}")
+    print(f"Average WER: {np.average(accum_wer)}")

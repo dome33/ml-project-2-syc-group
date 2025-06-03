@@ -139,6 +139,23 @@ class RandomRotate(Augmentor):
 
         return img
 
+    def centered_vertical_crop_dynamic(self, image: np.ndarray, angle: float, base_percent: float = 0.10, max_percent: float = 0.30) -> np.ndarray:
+        """
+        Crop top and bottom based on rotation angle.
+        The more rotated the image, the more we crop, up to max_percent.
+        """
+        h, w = image.shape[:2]
+        angle = abs(angle)
+
+        # Normalize angle to a range [0, 1], assuming max rotation = 30 degrees
+        weight = min(angle / 10.0, 1.0)
+
+        # Calculate dynamic crop percent
+        crop_percent = base_percent + (max_percent - base_percent) * weight
+        crop_pixels = int(h * crop_percent)
+
+        return image[crop_pixels : h - crop_pixels, :]
+
     @randomness_decorator
     def __call__(self, image: Image, annotation: typing.Any) -> typing.Tuple[Image, typing.Any]:
         """ Randomly rotate image
@@ -170,6 +187,8 @@ class RandomRotate(Augmentor):
 
             img, rotMat = self.rotate_image(image.numpy(), angle, borderValue, return_rotation_matrix=True)
 
+            img = self.centered_vertical_crop_dynamic(img, angle=angle, base_percent=0.10, max_percent=0.30)
+
             if self._augment_annotation:
                 if isinstance(annotation, Image):
                     # perform the actual rotation and return the annotation image
@@ -183,7 +202,7 @@ class RandomRotate(Augmentor):
             image.update(img)
 
             return image, annotation
-        except:
+        except Exception as e:
             print("Exception in rotation image, returning original")
             return image, annotation
 
