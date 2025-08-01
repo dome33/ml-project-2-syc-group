@@ -1,5 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/UDdkOEMs)
-# Machine Learning for Chess Movement Recognition
+# Machine Learning for Chess Move Recognition
 
 This repository contains the Machine Learning code from the Bachelor Thesis "Optimizing OCR and UI for ChessReader: A Chess Scoresheet Digitization System" . The goal of this thesis is to recognize chess movements from images of handwritten scoresheets and improve the ChessReader recognition accuracy. We experimented with a model based on a CNN-BiLSTM architecture that is described in the paper ["Digitization of Handwritten Chess Scoresheets with a BiLSTM Network"](https://www.mdpi.com/2313-433X/8/2/31) . The first experiment involved pretraining on handwritten words from the IAM Dataset and the second experiment involved pretraining on synthetically generated chess moves. In both experiments the model was then fine-tuned on a subset of the HCS Dataset. The following parts of the README are from the original project that was created by a group of EPFL Students.
 <p align="center">
