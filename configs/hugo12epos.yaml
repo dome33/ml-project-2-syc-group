@@ -1,0 +1,8 @@
+model_path : "results/hugo12"
+height : 64
+width : 256
+batch_size : 32
+learning_rate : 0.0005
+train_epochs : 100
+device : "cuda"
+model : "hugo"
